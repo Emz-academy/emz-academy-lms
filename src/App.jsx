@@ -1,902 +1,348 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  BookOpen, Video, FileText, CheckCircle, Clock, Award, 
-  User, Lock, LogOut, BarChart2, Shield, Plus, Key, 
-  Download, Eye, Check, X, Search, ChevronRight, Menu, PlayCircle
+  BookOpen, Video, FileText, CheckCircle, Clock, 
+  Users, Shield, LogOut, Award, Play, Download, Plus, Key 
 } from 'lucide-react';
 
-// Default initial state & dummy data
-const INITIAL_COURSES = [
-  {
-    id: 'math-10',
-    title: 'Mathematics - Class 10th',
-    grade: '10th',
-    subject: 'Math',
-    icon: '📐',
-    totalLectures: 24,
-    lectures: [
-      { id: 'l1', title: 'Chapter 1: Quadratic Equations - Part 1', duration: '45 mins', driveId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs', completed: true },
-      { id: 'l2', title: 'Chapter 1: Quadratic Equations - Part 2', duration: '50 mins', driveId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs', completed: true },
-      { id: 'l3', title: 'Chapter 2: Theory of Quadratic Equations', duration: '40 mins', driveId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs', completed: false },
-      { id: 'l4', title: 'Chapter 3: Variations & Proportions', duration: '55 mins', driveId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs', completed: false }
-    ],
-    materials: [
-      { id: 'm1', title: 'Ch 1 Formula Sheet & Notes.pdf', size: '2.4 MB', type: 'PDF' },
-      { id: 'm2', title: 'Class 10 Math Past Papers (2018-2023).pdf', size: '5.1 MB', type: 'PDF' }
-    ]
-  },
-  {
-    id: 'phy-10',
-    title: 'Physics - Class 10th',
-    grade: '10th',
-    subject: 'Physics',
-    icon: '⚡',
-    totalLectures: 20,
-    lectures: [
-      { id: 'pl1', title: 'Unit 10: Simple Harmonic Motion', duration: '38 mins', driveId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs', completed: true },
-      { id: 'pl2', title: 'Unit 11: Sound Waves & Acoustics', duration: '42 mins', driveId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs', completed: false },
-      { id: 'pl3', title: 'Unit 12: Geometrical Optics', duration: '48 mins', driveId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs', completed: false }
-    ],
-    materials: [
-      { id: 'pm1', title: 'Physics Numericals Handout 2026.pdf', size: '3.8 MB', type: 'PDF' }
-    ]
-  },
-  {
-    id: 'chem-11',
-    title: 'Chemistry - Class 11th',
-    grade: '11th',
-    subject: 'Chemistry',
-    icon: '🧪',
-    totalLectures: 28,
-    lectures: [
-      { id: 'cl1', title: 'Chapter 1: Stoichiometry & Moles', duration: '52 mins', driveId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs', completed: true },
-      { id: 'cl2', title: 'Chapter 2: Atomic Structure', duration: '46 mins', driveId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs', completed: true },
-      { id: 'cl3', title: 'Chapter 3: Chemical Bonding', duration: '50 mins', driveId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs', completed: true }
-    ],
-    materials: [
-      { id: 'cm1', title: 'Organic Reaction Mechanisms Guide.pdf', size: '4.2 MB', type: 'PDF' }
-    ]
-  },
-  {
-  id: 'c11-accounting',
-  title: 'Class 11 Accounting',
-  grade: '11th',
-  subject: 'Accounting',
-  videos: [
-    {
-      id: 'acc-v1',
-      title: 'Introduction to Accounting & Basic Concepts',
-      duration: '45 mins',
-      embedUrl: 'https://drive.google.com/file/d/1U8DerULpNzXM-OHNke4gBVmeYbzVv7Fi/preview'
-    }
-  ],
-  notes: [
-    {
-      id: 'acc-n1',
-      title: 'Class 11 Accounting Study Material & Handouts (PDF)',
-      downloadUrl: 'https://drive.google.com/file/d/1U8DerULpNzXM-OHNke4gBVmeYbzVv7Fi/view?usp=sharing'
-    }
-  ]
-},
-  {
-    id: 'bio-12',
-    title: 'Biology - Class 12th',
-    grade: '12th',
-    subject: 'Biology',
-    icon: '🧬',
-    totalLectures: 30,
-    lectures: [
-      { id: 'bl1', title: 'Chapter 15: Homeostasis Explained', duration: '44 mins', driveId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs', completed: false },
-      { id: 'bl2', title: 'Chapter 16: Support and Movement', duration: '51 mins', driveId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs', completed: false }
-    ],
-    materials: [
-      { id: 'bm1', title: 'Class 12 Biology Diagrams Pack.pdf', size: '8.5 MB', type: 'PDF' }
-    ]
-  }
+// Mock Users Database
+const initialUsers = [
+  { username: 'admin', password: 'admin123', role: 'admin', name: 'Academy Admin' },
+  { username: 'student9', password: 'pass123', role: 'student', grade: '9th', name: 'Class 9 Student' },
+  { username: 'student10', password: 'pass123', role: 'student', grade: '10th', name: 'Class 10 Student' },
+  { username: 'student11', password: 'pass123', role: 'student', grade: '11th', name: 'Class 11 Student' },
+  { username: 'student12', password: 'pass123', role: 'student', grade: '12th', name: 'Class 12 Student' },
 ];
 
-const DEFAULT_USERS = [
-  {
-    id: 'std-101',
-    username: 'student1',
-    password: '123',
-    name: 'Muhammad Ali',
-    grade: '10th',
-    role: 'student',
-    assignedCourses: ['math-10', 'phy-10'],
-    weeklyHours: [2.5, 4.0, 3.2, 5.1, 4.5, 6.0, 3.8], // Mon-Sun
-    totalLecturesCompleted: 3,
-    totalHoursStudied: 14.5
+// Complete Syllabus Database mapped from your curriculum table
+const initialCourses = [
+  // --- CLASS 9 ---
+  { id: '9-eng', title: 'English', grade: '9th', subject: 'Languages', videos: [{ id: 'v1', title: 'Class 9 English Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n1', title: 'Class 9 English Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '9-urdu', title: 'Urdu', grade: '9th', subject: 'Languages', videos: [{ id: 'v2', title: 'Class 9 Urdu Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n2', title: 'Class 9 Urdu Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '9-islamiat', title: 'Islamiat', grade: '9th', subject: 'Islamic Studies', videos: [{ id: 'v3', title: 'Class 9 Islamiat Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n3', title: 'Class 9 Islamiat Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '9-math', title: 'Mathematics', grade: '9th', subject: 'Mathematics', videos: [{ id: 'v4', title: 'Class 9 Mathematics Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n4', title: 'Class 9 Mathematics Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '9-phy', title: 'Physics', grade: '9th', subject: 'Science', videos: [{ id: 'v5', title: 'Class 9 Physics Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n5', title: 'Class 9 Physics Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '9-chem', title: 'Chemistry', grade: '9th', subject: 'Science', videos: [{ id: 'v6', title: 'Class 9 Chemistry Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n6', title: 'Class 9 Chemistry Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '9-bio', title: 'Biology', grade: '9th', subject: 'Science', videos: [{ id: 'v7', title: 'Class 9 Biology Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n7', title: 'Class 9 Biology Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '9-cs', title: 'Computer Science', grade: '9th', subject: 'Computer', videos: [{ id: 'v8', title: 'Class 9 Computer Science Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n8', title: 'Class 9 Computer Science Notes', downloadUrl: 'https://drive.google.com' }] },
+
+  // --- CLASS 10 ---
+  { id: '10-eng', title: 'English', grade: '10th', subject: 'Languages', videos: [{ id: 'v9', title: 'Class 10 English Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n9', title: 'Class 10 English Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '10-urdu', title: 'Urdu', grade: '10th', subject: 'Languages', videos: [{ id: 'v10', title: 'Class 10 Urdu Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n10', title: 'Class 10 Urdu Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '10-pst', title: 'Pakistan Studies', grade: '10th', subject: 'Social Studies', videos: [{ id: 'v11', title: 'Class 10 Pakistan Studies Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n11', title: 'Class 10 Pakistan Studies Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '10-math', title: 'Mathematics', grade: '10th', subject: 'Mathematics', videos: [{ id: 'v12', title: 'Class 10 Mathematics Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n12', title: 'Class 10 Mathematics Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '10-phy', title: 'Physics', grade: '10th', subject: 'Science', videos: [{ id: 'v13', title: 'Class 10 Physics Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n13', title: 'Class 10 Physics Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '10-chem', title: 'Chemistry', grade: '10th', subject: 'Science', videos: [{ id: 'v14', title: 'Class 10 Chemistry Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n14', title: 'Class 10 Chemistry Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '10-bio', title: 'Biology', grade: '10th', subject: 'Science', videos: [{ id: 'v15', title: 'Class 10 Biology Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n15', title: 'Class 10 Biology Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '10-cs', title: 'Computer Science', grade: '10th', subject: 'Computer', videos: [{ id: 'v16', title: 'Class 10 Computer Science Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n16', title: 'Class 10 Computer Science Notes', downloadUrl: 'https://drive.google.com' }] },
+
+  // --- CLASS 11 ---
+  { id: '11-eng', title: 'English', grade: '11th', subject: 'Languages', videos: [{ id: 'v17', title: 'Class 11 English Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n17', title: 'Class 11 English Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '11-urdu', title: 'Urdu', grade: '11th', subject: 'Languages', videos: [{ id: 'v18', title: 'Class 11 Urdu Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n18', title: 'Class 11 Urdu Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '11-islamiat', title: 'Islamiat', grade: '11th', subject: 'Islamic Studies', videos: [{ id: 'v19', title: 'Class 11 Islamiat Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n19', title: 'Class 11 Islamiat Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '11-phy', title: 'Physics', grade: '11th', subject: 'Science', videos: [{ id: 'v20', title: 'Class 11 Physics Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n20', title: 'Class 11 Physics Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '11-chem', title: 'Chemistry', grade: '11th', subject: 'Science', videos: [{ id: 'v21', title: 'Class 11 Chemistry Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n21', title: 'Class 11 Chemistry Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '11-bot', title: 'Biology (Botany)', grade: '11th', subject: 'Science', videos: [{ id: 'v22', title: 'Class 11 Botany Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n22', title: 'Class 11 Botany Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '11-zoo', title: 'Biology (Zoology)', grade: '11th', subject: 'Science', videos: [{ id: 'v23', title: 'Class 11 Zoology Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n23', title: 'Class 11 Zoology Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '11-math', title: 'Mathematics', grade: '11th', subject: 'Mathematics', videos: [{ id: 'v24', title: 'Class 11 Mathematics Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n24', title: 'Class 11 Mathematics Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '11-cs', title: 'Computer Science', grade: '11th', subject: 'Computer', videos: [{ id: 'v25', title: 'Class 11 Computer Science Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n25', title: 'Class 11 Computer Science Notes', downloadUrl: 'https://drive.google.com' }] },
+  { 
+    id: '11-acc', 
+    title: 'Principles of Accounting', 
+    grade: '11th', 
+    subject: 'Commerce', 
+    videos: [{ id: 'acc-v1', title: 'Lecture 1: Introduction to Accounting & Basic Concepts', duration: '45 mins', embedUrl: 'https://drive.google.com/file/d/1U8DerULpNzXM-OHNke4gBVmeYbzVv7Fi/preview' }], 
+    notes: [{ id: 'acc-n1', title: 'Class 11 Accounting Study Material & Handouts (PDF)', downloadUrl: 'https://drive.google.com/file/d/1U8DerULpNzXM-OHNke4gBVmeYbzVv7Fi/view?usp=sharing' }] 
   },
-  {
-    id: 'std-102',
-    username: 'student2',
-    password: '123',
-    name: 'Fatima Fatima',
-    grade: '11th',
-    role: 'student',
-    assignedCourses: ['chem-11'],
-    weeklyHours: [3.0, 2.5, 4.2, 3.8, 5.0, 4.0, 2.0],
-    totalLecturesCompleted: 3,
-    totalHoursStudied: 24.5
-  },
-  {
-    id: 'admin-1',
-    username: 'admin',
-    password: 'admin123',
-    name: 'EMZ Admin / Faculty',
-    role: 'admin'
-  }
+  { id: '11-com', title: 'Principles of Commerce', grade: '11th', subject: 'Commerce', videos: [{ id: 'v26', title: 'Class 11 Commerce Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n26', title: 'Class 11 Commerce Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '11-econ', title: 'Economics', grade: '11th', subject: 'Commerce/Arts', videos: [{ id: 'v27', title: 'Class 11 Economics Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n27', title: 'Class 11 Economics Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '11-bmath', title: 'Business Mathematics', grade: '11th', subject: 'Commerce', videos: [{ id: 'v28', title: 'Class 11 Business Math Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n28', title: 'Class 11 Business Math Notes', downloadUrl: 'https://drive.google.com' }] },
+
+  // --- CLASS 12 ---
+  { id: '12-eng', title: 'English', grade: '12th', subject: 'Languages', videos: [{ id: 'v29', title: 'Class 12 English Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n29', title: 'Class 12 English Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-urdu', title: 'Urdu', grade: '12th', subject: 'Languages', videos: [{ id: 'v30', title: 'Class 12 Urdu Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n30', title: 'Class 12 Urdu Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-pst', title: 'Pakistan Studies', grade: '12th', subject: 'Social Studies', videos: [{ id: 'v31', title: 'Class 12 Pakistan Studies Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n31', title: 'Class 12 Pakistan Studies Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-phy', title: 'Physics', grade: '12th', subject: 'Science', videos: [{ id: 'v32', title: 'Class 12 Physics Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n32', title: 'Class 12 Physics Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-chem', title: 'Chemistry', grade: '12th', subject: 'Science', videos: [{ id: 'v33', title: 'Class 12 Chemistry Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n33', title: 'Class 12 Chemistry Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-bot', title: 'Biology (Botany)', grade: '12th', subject: 'Science', videos: [{ id: 'v34', title: 'Class 12 Botany Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n34', title: 'Class 12 Botany Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-zoo', title: 'Biology (Zoology)', grade: '12th', subject: 'Science', videos: [{ id: 'v35', title: 'Class 12 Zoology Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n35', title: 'Class 12 Zoology Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-math', title: 'Mathematics', grade: '12th', subject: 'Mathematics', videos: [{ id: 'v36', title: 'Class 12 Mathematics Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n36', title: 'Class 12 Mathematics Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-cs', title: 'Computer Science', grade: '12th', subject: 'Computer', videos: [{ id: 'v37', title: 'Class 12 Computer Science Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n37', title: 'Class 12 Computer Science Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-acc', title: 'Principles of Accounting', grade: '12th', subject: 'Commerce', videos: [{ id: 'v38', title: 'Class 12 Accounting Lecture 1', duration: '45 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n38', title: 'Class 12 Accounting Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-com', title: 'Principles of Commerce', grade: '12th', subject: 'Commerce', videos: [{ id: 'v39', title: 'Class 12 Commerce Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n39', title: 'Class 12 Commerce Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-econ', title: 'Economics', grade: '12th', subject: 'Commerce/Arts', videos: [{ id: 'v40', title: 'Class 12 Economics Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n40', title: 'Class 12 Economics Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-bstat', title: 'Business Statistics', grade: '12th', subject: 'Commerce', videos: [{ id: 'v41', title: 'Class 12 Business Stats Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n41', title: 'Class 12 Business Stats Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-bank', title: 'Banking', grade: '12th', subject: 'Commerce', videos: [{ id: 'v42', title: 'Class 12 Banking Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n42', title: 'Class 12 Banking Notes', downloadUrl: 'https://drive.google.com' }] },
+  { id: '12-geom', title: 'Commercial Geography', grade: '12th', subject: 'Commerce', videos: [{ id: 'v43', title: 'Class 12 Commercial Geography Lecture 1', duration: '40 mins', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }], notes: [{ id: 'n43', title: 'Class 12 Commercial Geography Notes', downloadUrl: 'https://drive.google.com' }] },
 ];
 
 export default function App() {
-  const [users, setUsers] = useState(() => {
-    const saved = localStorage.getItem('emz_users');
-    return saved ? JSON.parse(saved) : DEFAULT_USERS;
-  });
-
-  const [courses, setCourses] = useState(() => {
-    const saved = localStorage.getItem('emz_courses');
-    return saved ? JSON.parse(saved) : INITIAL_COURSES;
-  });
-
   const [currentUser, setCurrentUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [usernameInput, setUsernameInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [loginError, setLoginError] = useState('');
+  
+  const [courses, setCourses] = useState(initialCourses);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [activeVideo, setActiveVideo] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Login Form States
-  const [loginUser, setLoginUser] = useState('');
-  const [loginPass, setLoginPass] = useState('');
-  const [loginError, setLoginError] = useState('');
-
-  // Admin New Student Form State
-  const [newStudentName, setNewStudentName] = useState('');
-  const [newStudentUsername, setNewStudentUsername] = useState('');
-  const [newStudentPass, setNewStudentPass] = useState('');
-  const [newStudentGrade, setNewStudentGrade] = useState('10th');
-
-  // Save changes to localStorage
-  useEffect(() => {
-    localStorage.setItem('emz_users', JSON.stringify(users));
-  }, [users]);
-
-  useEffect(() => {
-    localStorage.setItem('emz_courses', JSON.stringify(courses));
-  }, [courses]);
-
-  // Handle Login
   const handleLogin = (e) => {
     e.preventDefault();
-    const userMatch = users.find(
-      (u) => u.username.trim() === loginUser.trim() && u.password === loginPass
+    const foundUser = initialUsers.find(
+      u => u.username === usernameInput.trim() && u.password === passwordInput.trim()
     );
 
-    if (userMatch) {
-      setCurrentUser(userMatch);
+    if (foundUser) {
+      setCurrentUser(foundUser);
       setLoginError('');
-      setActiveTab(userMatch.role === 'admin' ? 'admin' : 'dashboard');
+      setUsernameInput('');
+      setPasswordInput('');
     } else {
-      setLoginError('Invalid Username or Password. Please try again.');
+      setLoginError('Invalid credentials. Try admin / admin123 or student11 / pass123');
     }
   };
 
-  // Handle Logout
   const handleLogout = () => {
     setCurrentUser(null);
     setSelectedCourse(null);
     setActiveVideo(null);
-    setLoginUser('');
-    setLoginPass('');
   };
 
-  // Toggle Lecture Completed Status
-  const toggleLectureCompleted = (courseId, lectureId) => {
-    setCourses((prevCourses) =>
-      prevCourses.map((c) => {
-        if (c.id === courseId) {
-          return {
-            ...c,
-            lectures: c.lectures.map((l) =>
-              l.id === lectureId ? { ...l, completed: !l.completed } : l
-            )
-          };
-        }
-        return c;
-      })
-    );
-
-    // Update user stats
-    if (currentUser && currentUser.role === 'student') {
-      setUsers((prevUsers) =>
-        prevUsers.map((u) => {
-          if (u.id === currentUser.id) {
-            const updatedCompleted = Math.max(0, u.totalLecturesCompleted + 1);
-            const updatedUser = {
-              ...u,
-              totalLecturesCompleted: updatedCompleted,
-              totalHoursStudied: parseFloat((u.totalHoursStudied + 0.75).toFixed(1))
-            };
-            setCurrentUser(updatedUser);
-            return updatedUser;
-          }
-          return u;
-        })
-      );
-    }
-  };
-
-  // Admin: Assign / Unassign Course Access
-  const toggleCourseAssignment = (studentId, courseId) => {
-    setUsers((prevUsers) =>
-      prevUsers.map((u) => {
-        if (u.id === studentId) {
-          const hasCourse = u.assignedCourses.includes(courseId);
-          const newAssigned = hasCourse
-            ? u.assignedCourses.filter((id) => id !== courseId)
-            : [...u.assignedCourses, courseId];
-
-          return { ...u, assignedCourses: newAssigned };
-        }
-        return u;
-      })
-    );
-  };
-
-  // Admin: Register New Student
-  const handleCreateStudent = (e) => {
-    e.preventDefault();
-    if (!newStudentName || !newStudentUsername || !newStudentPass) return;
-
-    const newStudent = {
-      id: `std-${Date.now()}`,
-      name: newStudentName,
-      username: newStudentUsername,
-      password: newStudentPass,
-      grade: newStudentGrade,
-      role: 'student',
-      assignedCourses: [],
-      weeklyHours: [0, 0, 0, 0, 0, 0, 0],
-      totalLecturesCompleted: 0,
-      totalHoursStudied: 0
-    };
-
-    setUsers([...users, newStudent]);
-    setNewStudentName('');
-    setNewStudentUsername('');
-    setNewStudentPass('');
-  };
-
-  // Filtering user specific courses
-  const userCourses = currentUser && currentUser.role === 'student'
-    ? courses.filter((c) => currentUser.assignedCourses?.includes(c.id))
-    : courses;
-
-  // -------------------------------------------------------------
-  // RENDER: LOGIN SCREEN
-  // -------------------------------------------------------------
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 relative overflow-hidden">
-        {/* Decorative Background Elements */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-[#00338D]/30 rounded-full blur-3xl -z-10 animate-pulse"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#00C4CC]/20 rounded-full blur-3xl -z-10"></div>
-
-        <div className="max-w-md w-full bg-slate-900/90 border border-slate-800 backdrop-blur-xl rounded-2xl shadow-2xl p-8">
-          {/* Header & Logo */}
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md p-8 shadow-2xl">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#00338D] to-[#00C4CC] shadow-lg shadow-[#00C4CC]/20 mb-4 text-white font-extrabold text-2xl">
-              EMZ
+            <div className="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/30">
+              <BookOpen className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-wide">
-              EMZ Virtual Academy
-            </h1>
-            <p className="text-sm text-cyan-400 mt-1 font-medium">
-              Student LMS & Portal Access
-            </p>
+            <h1 className="text-2xl font-bold text-white">EMZ Virtual Academy</h1>
+            <p className="text-slate-400 text-sm mt-1">9th to 12th Grade Professional Coaching</p>
           </div>
 
           {loginError && (
-            <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs flex items-center gap-2">
-              <Shield className="w-4 h-4 shrink-0" />
-              <span>{loginError}</span>
+            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm p-3 rounded-xl mb-6 text-center">
+              {loginError}
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold uppercase text-slate-400 mb-2">
-                Username / Student ID
-              </label>
-              <div className="relative">
-                <User className="absolute left-3.5 top-3 w-5 h-5 text-slate-500" />
-                <input
-                  type="text"
-                  required
-                  value={loginUser}
-                  onChange={(e) => setLoginUser(e.target.value)}
-                  placeholder="e.g. student1 or admin"
-                  className="w-full bg-slate-950/80 border border-slate-800 focus:border-[#00C4CC] focus:ring-1 focus:ring-[#00C4CC] text-white rounded-xl py-2.5 pl-11 pr-4 text-sm outline-none transition"
-                />
-              </div>
+              <label className="block text-slate-300 text-sm font-medium mb-1.5">Username</label>
+              <input 
+                type="text" 
+                value={usernameInput}
+                onChange={(e) => setUsernameInput(e.target.value)}
+                placeholder="e.g. admin or student11"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                required 
+              />
             </div>
-
             <div>
-              <label className="block text-xs font-semibold uppercase text-slate-400 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-3 w-5 h-5 text-slate-500" />
-                <input
-                  type="password"
-                  required
-                  value={loginPass}
-                  onChange={(e) => setLoginPass(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-slate-950/80 border border-slate-800 focus:border-[#00C4CC] focus:ring-1 focus:ring-[#00C4CC] text-white rounded-xl py-2.5 pl-11 pr-4 text-sm outline-none transition"
-                />
-              </div>
+              <label className="block text-slate-300 text-sm font-medium mb-1.5">Password</label>
+              <input 
+                type="password" 
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                required 
+              />
             </div>
-
-            <button
+            <button 
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-[#00338D] to-[#00C4CC] hover:opacity-90 text-white font-semibold rounded-xl shadow-lg shadow-[#00338D]/40 transition transform active:scale-95 text-sm"
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-blue-600/30 mt-2"
             >
               Sign In to Portal
             </button>
           </form>
 
-          {/* Quick Demo Help Panel */}
-          <div className="mt-8 pt-6 border-t border-slate-800 text-xs text-slate-400">
-            <p className="font-semibold text-slate-300 mb-2">Demo Logins:</p>
-            <div className="space-y-1 bg-slate-950/50 p-3 rounded-lg border border-slate-800">
-              <p><span className="text-cyan-400 font-mono">student1</span> / <span className="text-cyan-400 font-mono">123</span> (10th Grade Student)</p>
-              <p><span className="text-cyan-400 font-mono">student2</span> / <span className="text-cyan-400 font-mono">123</span> (11th Grade Student)</p>
-              <p><span className="text-cyan-400 font-mono">admin</span> / <span className="text-cyan-400 font-mono">admin123</span> (Academy Administrator)</p>
-            </div>
+          <div className="mt-8 border-t border-slate-700/60 pt-4 text-xs text-slate-400 text-center space-y-1">
+            <p>Admin Login: <code className="text-blue-400 font-mono">admin</code> / <code className="text-blue-400 font-mono">admin123</code></p>
+            <p>Student Login: <code className="text-blue-400 font-mono">student11</code> / <code className="text-blue-400 font-mono">pass123</code></p>
           </div>
         </div>
       </div>
     );
   }
 
-  // -------------------------------------------------------------
-  // MAIN LMS APPLICATION SCREEN
-  // -------------------------------------------------------------
+  const displayedCourses = currentUser.role === 'admin' 
+    ? courses 
+    : courses.filter(c => c.grade === currentUser.grade);
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row font-sans">
-      
-      {/* Mobile Top Header Bar */}
-      <div className="md:hidden flex items-center justify-between p-4 bg-slate-900 border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#00338D] to-[#00C4CC] text-white font-bold flex items-center justify-center text-xs">
-            EMZ
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="bg-blue-600 p-2 rounded-xl text-white">
+            <BookOpen className="w-6 h-6" />
           </div>
-          <span className="font-bold text-white text-sm">EMZ Virtual Academy</span>
+          <div>
+            <h1 className="font-bold text-lg text-white leading-tight">EMZ Virtual Academy</h1>
+            <p className="text-xs text-slate-400">Welcome, {currentUser.name} ({currentUser.role.toUpperCase()})</p>
+          </div>
         </div>
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 text-slate-400 hover:text-white"
+        <button 
+          onClick={handleLogout}
+          className="flex items-center space-x-2 bg-slate-800 hover:bg-rose-600/20 hover:text-rose-400 text-slate-300 px-4 py-2 rounded-xl border border-slate-700 transition-all text-sm font-medium"
         >
-          <Menu className="w-6 h-6" />
+          <LogOut className="w-4 h-4" />
+          <span>Sign Out</span>
         </button>
-      </div>
+      </header>
 
-      {/* Sidebar Navigation */}
-      <aside className={`${sidebarOpen ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-64 bg-slate-900/90 border-r border-slate-800 p-5 shrink-0 justify-between backdrop-blur-md`}>
-        <div className="space-y-6">
-          {/* Academy Brand Header */}
-          <div className="hidden md:flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#00338D] to-[#00C4CC] text-white font-extrabold flex items-center justify-center text-base shadow-md shadow-[#00C4CC]/20">
-              EMZ
-            </div>
-            <div>
-              <h2 className="font-bold text-white leading-tight text-sm">EMZ Virtual Academy</h2>
-              <span className="text-[10px] text-cyan-400 uppercase tracking-widest font-semibold">Virtual Portal</span>
-            </div>
-          </div>
+      <main className="flex-1 max-w-7xl w-full mx-auto p-6">
+        {selectedCourse ? (
+          <div>
+            <button 
+              onClick={() => { setSelectedCourse(null); setActiveVideo(null); }}
+              className="text-blue-400 hover:text-blue-300 text-sm font-medium mb-6 flex items-center space-x-1"
+            >
+              ← Back to All Subjects
+            </button>
 
-          {/* User Badge */}
-          <div className="p-3 bg-slate-950/80 border border-slate-800 rounded-xl flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#00338D] text-[#00C4CC] font-bold flex items-center justify-center text-sm border border-[#00C4CC]/30">
-              {currentUser.name.charAt(0)}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-8">
+              <span className="text-xs font-semibold uppercase tracking-wider bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20">
+                Grade {selectedCourse.grade} • {selectedCourse.subject}
+              </span>
+              <h2 className="text-3xl font-bold text-white mt-3">{selectedCourse.title}</h2>
             </div>
-            <div className="overflow-hidden">
-              <p className="text-xs font-semibold text-white truncate">{currentUser.name}</p>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wider">
-                {currentUser.role === 'admin' ? 'Administrator' : `Class ${currentUser.grade}`}
-              </p>
-            </div>
-          </div>
 
-          {/* Navigation Links */}
-          <nav className="space-y-1.5">
-            {currentUser.role === 'student' && (
-              <>
-                <button
-                  onClick={() => { setActiveTab('dashboard'); setSelectedCourse(null); }}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition ${
-                    activeTab === 'dashboard' && !selectedCourse
-                      ? 'bg-gradient-to-r from-[#00338D] to-[#00C4CC] text-white shadow-md'
-                      : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                  }`}
-                >
-                  <BarChart2 className="w-4 h-4" />
-                  Dashboard & Stats
-                </button>
-
-                <button
-                  onClick={() => { setActiveTab('courses'); setSelectedCourse(null); }}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition ${
-                    activeTab === 'courses' || selectedCourse
-                      ? 'bg-gradient-to-r from-[#00338D] to-[#00C4CC] text-white shadow-md'
-                      : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                  }`}
-                >
-                  <BookOpen className="w-4 h-4" />
-                  My Subjects ({userCourses.length})
-                </button>
-              </>
+            {activeVideo && (
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden mb-8 shadow-xl">
+                <div className="p-4 bg-slate-850 border-b border-slate-800 flex items-center justify-between">
+                  <h3 className="font-semibold text-white flex items-center space-x-2">
+                    <Play className="w-4 h-4 text-blue-400" />
+                    <span>Now Playing: {activeVideo.title}</span>
+                  </h3>
+                  <span className="text-xs text-slate-400 flex items-center space-x-1">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>{activeVideo.duration}</span>
+                  </span>
+                </div>
+                <div className="aspect-video w-full bg-black">
+                  <iframe 
+                    src={activeVideo.embedUrl} 
+                    title={activeVideo.title}
+                    className="w-full h-full border-0"
+                    allow="autoplay"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </div>
             )}
 
-            {currentUser.role === 'admin' && (
-              <button
-                onClick={() => setActiveTab('admin')}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition ${
-                  activeTab === 'admin'
-                    ? 'bg-gradient-to-r from-[#00338D] to-[#00C4CC] text-white shadow-md'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <Shield className="w-4 h-4" />
-                Admin LMS Panel
-              </button>
-            )}
-          </nav>
-        </div>
-
-        {/* Logout Button */}
-        <div className="pt-6 border-t border-slate-800">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content Area */}
-      <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full space-y-6">
-
-        {/* ------------------------------------------------------------- */}
-        {/* STUDENT DASHBOARD TAB                                          */}
-        {/* ------------------------------------------------------------- */}
-        {activeTab === 'dashboard' && currentUser.role === 'student' && !selectedCourse && (
-          <div className="space-y-6">
-            {/* Welcome Banner */}
-            <div className="p-6 md:p-8 bg-gradient-to-r from-[#00338D] to-slate-900 border border-slate-800 rounded-3xl relative overflow-hidden shadow-xl">
-              <div className="relative z-10 max-w-xl">
-                <span className="inline-block px-3 py-1 bg-[#00C4CC]/20 text-[#00C4CC] border border-[#00C4CC]/30 text-[11px] font-bold uppercase rounded-full mb-3">
-                  Class {currentUser.grade} LMS Portal
-                </span>
-                <h2 className="text-2xl md:text-3xl font-extrabold text-white leading-tight">
-                  Welcome back, {currentUser.name}! 👋
-                </h2>
-                <p className="text-slate-300 text-xs md:text-sm mt-2 leading-relaxed">
-                  Track your study hours, access Google Drive recorded video lectures, and download past papers for your enrolled subjects.
-                </p>
-              </div>
-              <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-[#00C4CC]/10 to-transparent pointer-events-none hidden md:block"></div>
-            </div>
-
-            {/* Stats Metrics Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-5 bg-slate-900/80 border border-slate-800 rounded-2xl flex items-center gap-4">
-                <div className="p-3 bg-cyan-500/10 text-cyan-400 rounded-xl border border-cyan-500/20">
-                  <Video className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white">{currentUser.totalLecturesCompleted || 0}</p>
-                  <p className="text-xs text-slate-400">Lectures Completed</p>
-                </div>
-              </div>
-
-              <div className="p-5 bg-slate-900/80 border border-slate-800 rounded-2xl flex items-center gap-4">
-                <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-                  <Clock className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white">{currentUser.totalHoursStudied || 0} hrs</p>
-                  <p className="text-xs text-slate-400">Total Study Time</p>
-                </div>
-              </div>
-
-              <div className="p-5 bg-slate-900/80 border border-slate-800 rounded-2xl flex items-center gap-4">
-                <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-                  <Award className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white">{userCourses.length} Enrolled</p>
-                  <p className="text-xs text-slate-400">Active Subjects</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Weekly Activity Bar Chart */}
-            <div className="p-6 bg-slate-900/80 border border-slate-800 rounded-2xl">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h3 className="text-base font-bold text-white">Weekly Study Hours Report</h3>
-                  <p className="text-xs text-slate-400">Monitored hours across all subjects</p>
-                </div>
-                <span className="text-xs text-cyan-400 font-mono bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20">
-                  Total: {currentUser.weeklyHours.reduce((a, b) => a + b, 0).toFixed(1)} hrs
-                </span>
-              </div>
-
-              {/* Simple Responsive Bar Chart */}
-              <div className="flex items-end justify-between gap-2 h-40 pt-6 px-2 border-b border-slate-800">
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => {
-                  const hrs = currentUser.weeklyHours[idx] || 0;
-                  const maxHeight = 8; // Max 8 hours for scale
-                  const heightPercent = Math.min(100, (hrs / maxHeight) * 100);
-
-                  return (
-                    <div key={day} className="flex-1 flex flex-col items-center gap-2 group relative">
-                      {/* Tooltip */}
-                      <div className="opacity-0 group-hover:opacity-100 absolute -top-8 bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded shadow pointer-events-none transition">
-                        {hrs} hrs
-                      </div>
-                      <div className="w-full max-w-[36px] bg-slate-800/80 rounded-t-lg h-full flex items-end overflow-hidden">
-                        <div
-                          style={{ height: `${heightPercent}%` }}
-                          className="w-full bg-gradient-to-t from-[#00338D] to-[#00C4CC] rounded-t-lg transition-all duration-500 group-hover:brightness-125"
-                        ></div>
-                      </div>
-                      <span className="text-[11px] font-medium text-slate-400">{day}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Enrolled Courses Quick Access */}
-            <div>
-              <h3 className="text-base font-bold text-white mb-4">Your Enrolled Subjects</h3>
-              {userCourses.length === 0 ? (
-                <div className="p-8 bg-slate-900 border border-slate-800 rounded-2xl text-center text-slate-400 text-sm">
-                  No courses assigned yet. Contact EMZ Academy admin for subject enrollment.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {userCourses.map((course) => (
-                    <div
-                      key={course.id}
-                      onClick={() => setSelectedCourse(course)}
-                      className="p-5 bg-slate-900/90 border border-slate-800 hover:border-[#00C4CC]/50 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group"
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+                  <Video className="w-5 h-5 text-blue-400" />
+                  <span>Video Lectures</span>
+                </h3>
+                <div className="space-y-3">
+                  {selectedCourse.videos.map((vid) => (
+                    <div 
+                      key={vid.id}
+                      onClick={() => setActiveVideo(vid)}
+                      className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                        activeVideo?.id === vid.id 
+                          ? 'bg-blue-600/10 border-blue-500 text-white' 
+                          : 'bg-slate-850 border-slate-800 text-slate-300 hover:border-slate-700'
+                      }`}
                     >
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-3xl">{course.icon}</span>
-                        <span className="text-[10px] uppercase font-bold text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded-md border border-cyan-500/20">
-                          {course.grade} Class
-                        </span>
+                      <div className="flex items-center space-x-3">
+                        <div className="bg-blue-600/20 p-2 rounded-lg text-blue-400">
+                          <Play className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{vid.title}</p>
+                          <span className="text-xs text-slate-400">{vid.duration}</span>
+                        </div>
                       </div>
-                      <h4 className="font-bold text-white text-base group-hover:text-cyan-400 transition">
-                        {course.title}
-                      </h4>
-                      <p className="text-xs text-slate-400 mt-1">
-                        {course.lectures.length} Recorded Lectures • {course.materials.length} Materials
-                      </p>
-
-                      <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-cyan-400 font-semibold">
-                        <span>Access Lectures</span>
-                        <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition" />
-                      </div>
+                      <span className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg font-medium">Watch</span>
                     </div>
                   ))}
                 </div>
-              )}
+              </div>
+
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+                  <FileText className="w-5 h-5 text-emerald-400" />
+                  <span>Study Material & Handouts</span>
+                </h3>
+                <div className="space-y-3">
+                  {selectedCourse.notes.map((note) => (
+                    <div 
+                      key={note.id}
+                      className="p-4 bg-slate-850 border border-slate-800 rounded-2xl flex items-center justify-between"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="bg-emerald-500/20 p-2 rounded-lg text-emerald-400">
+                          <FileText className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm text-slate-200">{note.title}</p>
+                          <span className="text-xs text-slate-400">Google Drive Document</span>
+                        </div>
+                      </div>
+                      <a 
+                        href={note.downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all shadow-lg shadow-emerald-600/20"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Open PDF</span>
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        )}
+        ) : (
+          <div>
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-white">
+                  {currentUser.role === 'admin' ? 'All Academy Subjects (Admin View)' : `Grade ${currentUser.grade} Curriculum`}
+                </h2>
+                <p className="text-slate-400 text-sm mt-1">Select any subject below to view lectures and download handouts.</p>
+              </div>
+            </div>
 
-        {/* ------------------------------------------------------------- */}
-        {/* COURSES LIST VIEW TAB                                         */}
-        {/* ------------------------------------------------------------- */}
-        {activeTab === 'courses' && !selectedCourse && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold text-white">Your Assigned Enrolled Courses</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {userCourses.map((course) => (
-                <div
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedCourses.map((course) => (
+                <div 
                   key={course.id}
-                  className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-slate-700 transition shadow-xl"
+                  onClick={() => { setSelectedCourse(course); setActiveVideo(course.videos[0]); }}
+                  className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-6 cursor-pointer transition-all hover:shadow-xl hover:shadow-blue-500/5 group flex flex-col justify-between"
                 >
-                  <div className="p-5 border-b border-slate-800 bg-gradient-to-r from-slate-900 to-slate-950 flex justify-between items-center">
-                    <span className="text-3xl">{course.icon}</span>
-                    <span className="text-xs font-bold text-[#00C4CC] bg-[#00C4CC]/10 px-2.5 py-1 rounded-full border border-[#00C4CC]/20">
-                      {course.subject}
-                    </span>
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-xs font-semibold uppercase tracking-wider bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20">
+                        Grade {course.grade}
+                      </span>
+                      <span className="text-xs text-slate-400 font-medium">{course.subject}</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
+                      {course.title}
+                    </h3>
                   </div>
-                  <div className="p-5 space-y-4">
-                    <h3 className="font-bold text-white text-lg">{course.title}</h3>
-                    <p className="text-xs text-slate-400">
-                      High definition Google Drive recorded lectures and downloadable revision notes.
-                    </p>
-                    <button
-                      onClick={() => setSelectedCourse(course)}
-                      className="w-full py-2.5 bg-[#00338D] hover:bg-[#00338D]/80 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2"
-                    >
-                      <PlayCircle className="w-4 h-4" /> View Lectures & Notes
-                    </button>
+
+                  <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                    <span className="flex items-center space-x-1">
+                      <Video className="w-3.5 h-3.5 text-blue-400" />
+                      <span>{course.videos.length} Lecture</span>
+                    </span>
+                    <span className="flex items-center space-x-1">
+                      <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{course.notes.length} PDF Note</span>
+                    </span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
         )}
-
-        {/* ------------------------------------------------------------- */}
-        {/* COURSE DETAIL & VIDEO LECTURE PLAYER VIEW                    */}
-        {/* ------------------------------------------------------------- */}
-        {selectedCourse && (
-          <div className="space-y-6">
-            {/* Back Button */}
-            <button
-              onClick={() => { setSelectedCourse(null); setActiveVideo(null); }}
-              className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
-            >
-              ← Back to Dashboard
-            </button>
-
-            <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
-              <div>
-                <span className="text-xs font-mono text-cyan-400">{selectedCourse.grade} Grade Subject</span>
-                <h2 className="text-2xl font-bold text-white">{selectedCourse.title}</h2>
-              </div>
-            </div>
-
-            {/* Video Player Modal / Player Frame */}
-            {activeVideo && (
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl p-4 space-y-3">
-                <div className="flex justify-between items-center px-2">
-                  <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                    <Video className="w-4 h-4 text-cyan-400" />
-                    Now Playing: {activeVideo.title}
-                  </h3>
-                  <button
-                    onClick={() => setActiveVideo(null)}
-                    className="p-1 text-slate-400 hover:text-white rounded-lg"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                {/* Google Drive Embedded Video Container */}
-                <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-slate-800">
-                  <iframe
-                    src={`https://drive.google.com/file/d/${activeVideo.driveId}/preview`}
-                    className="w-full h-full border-0"
-                    allow="autoplay"
-                    title={activeVideo.title}
-                  ></iframe>
-                </div>
-                <p className="text-xs text-slate-400 px-2">
-                  * Note: Embedded video streaming straight from EMZ Virtual Academy Google Drive Cloud Storage.
-                </p>
-              </div>
-            )}
-
-            {/* Lectures List & Downloads Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
-              {/* Lecture Playlist */}
-              <div className="lg:col-span-2 space-y-3">
-                <h3 className="font-bold text-white text-base">Course Video Lectures</h3>
-                <div className="space-y-2">
-                  {selectedCourse.lectures.map((lec, idx) => (
-                    <div
-                      key={lec.id}
-                      className="p-4 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between hover:border-slate-700 transition"
-                    >
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => toggleLectureCompleted(selectedCourse.id, lec.id)}
-                          className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition ${
-                            lec.completed
-                              ? 'bg-emerald-500 text-slate-950 font-bold'
-                              : 'border border-slate-700 text-transparent hover:border-emerald-500'
-                          }`}
-                        >
-                          ✓
-                        </button>
-                        <div>
-                          <p className={`text-sm font-semibold ${lec.completed ? 'text-slate-400 line-through' : 'text-white'}`}>
-                            {idx + 1}. {lec.title}
-                          </p>
-                          <span className="text-[11px] text-slate-500 font-mono">{lec.duration}</span>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => setActiveVideo(lec)}
-                        className="px-3 py-1.5 bg-[#00C4CC]/10 hover:bg-[#00C4CC]/20 text-[#00C4CC] border border-[#00C4CC]/30 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
-                      >
-                        <PlayCircle className="w-4 h-4" /> Watch
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Study Material Downloads */}
-              <div className="space-y-3">
-                <h3 className="font-bold text-white text-base">Study Materials & Notes</h3>
-                <div className="space-y-2">
-                  {selectedCourse.materials.map((mat) => (
-                    <div
-                      key={mat.id}
-                      className="p-3.5 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <FileText className="w-5 h-5 text-cyan-400 shrink-0" />
-                        <div className="truncate">
-                          <p className="text-xs font-semibold text-white truncate">{mat.title}</p>
-                          <p className="text-[10px] text-slate-500">{mat.size}</p>
-                        </div>
-                      </div>
-                      <a
-                        href="#"
-                        onClick={(e) => { e.preventDefault(); alert(`Downloading file: ${mat.title}`); }}
-                        className="p-2 text-slate-400 hover:text-cyan-400 transition"
-                        title="Download PDF"
-                      >
-                        <Download className="w-4 h-4" />
-                      </a>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          </div>
-        )}
-
-        {/* ------------------------------------------------------------- */}
-        {/* ADMIN MANAGEMENT PANEL TAB                                    */}
-        {/* ------------------------------------------------------------- */}
-        {activeTab === 'admin' && currentUser.role === 'admin' && (
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-bold text-white">EMZ Academy Admin Management</h2>
-              <p className="text-xs text-slate-400">Manage student credentials, assign paid course access, and generate weekly reports.</p>
-            </div>
-
-            {/* Create New Student Credentials */}
-            <div className="p-6 bg-slate-900 border border-slate-800 rounded-2xl space-y-4">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Plus className="w-5 h-5 text-[#00C4CC]" />
-                Generate New Student Credentials
-              </h3>
-
-              <form onSubmit={handleCreateStudent} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <input
-                  type="text"
-                  placeholder="Student Full Name"
-                  required
-                  value={newStudentName}
-                  onChange={(e) => setNewStudentName(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 text-white rounded-xl px-3.5 py-2 text-xs outline-none focus:border-[#00C4CC]"
-                />
-                <input
-                  type="text"
-                  placeholder="Username"
-                  required
-                  value={newStudentUsername}
-                  onChange={(e) => setNewStudentUsername(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 text-white rounded-xl px-3.5 py-2 text-xs outline-none focus:border-[#00C4CC]"
-                />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  required
-                  value={newStudentPass}
-                  onChange={(e) => setNewStudentPass(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 text-white rounded-xl px-3.5 py-2 text-xs outline-none focus:border-[#00C4CC]"
-                />
-                <select
-                  value={newStudentGrade}
-                  onChange={(e) => setNewStudentGrade(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 text-white rounded-xl px-3.5 py-2 text-xs outline-none focus:border-[#00C4CC]"
-                >
-                  <option value="9th">9th Grade</option>
-                  <option value="10th">10th Grade</option>
-                  <option value="11th">11th Grade</option>
-                  <option value="12th">12th Grade</option>
-                </select>
-                <div className="md:col-span-4">
-                  <button
-                    type="submit"
-                    className="px-5 py-2 bg-[#00C4CC] hover:bg-[#00C4CC]/80 text-slate-950 font-bold text-xs rounded-xl transition"
-                  >
-                    Add Student Credentials
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {/* Students List & Course Toggles */}
-            <div className="p-6 bg-slate-900 border border-slate-800 rounded-2xl space-y-4">
-              <h3 className="text-base font-bold text-white">Student Enrollment & Course Access Toggles</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
-                    <tr>
-                      <th className="p-3">Student Name</th>
-                      <th className="p-3">Username / Pass</th>
-                      <th className="p-3">Grade</th>
-                      <th className="p-3">Assigned Courses (Click to Toggle)</th>
-                      <th className="p-3 text-right">Weekly Activity</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {users.filter(u => u.role === 'student').map((student) => (
-                      <tr key={student.id} className="hover:bg-slate-950/40">
-                        <td className="p-3 font-semibold text-white">{student.name}</td>
-                        <td className="p-3 font-mono text-cyan-400">
-                          {student.username} / {student.password}
-                        </td>
-                        <td className="p-3 text-slate-300">{student.grade}</td>
-                        <td className="p-3">
-                          <div className="flex flex-wrap gap-1.5">
-                            {courses.map((course) => {
-                              const isAssigned = student.assignedCourses?.includes(course.id);
-                              return (
-                                <button
-                                  key={course.id}
-                                  onClick={() => toggleCourseAssignment(student.id, course.id)}
-                                  className={`px-2.5 py-1 rounded-md text-[10px] font-semibold transition border ${
-                                    isAssigned
-                                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                                      : 'bg-slate-800 text-slate-500 border-slate-700 hover:text-slate-300'
-                                  }`}
-                                >
-                                  {course.subject} ({course.grade}) {isAssigned ? '✓' : '+'}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </td>
-                        <td className="p-3 text-right font-mono text-slate-300">
-                          {student.totalHoursStudied || 0} hrs studied
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Weekly Report Export */}
-            <div className="p-6 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
-              <div>
-                <h3 className="font-bold text-white text-base">Weekly Activity & Performance Summary</h3>
-                <p className="text-xs text-slate-400">Download or print full activity report for parents.</p>
-              </div>
-              <button
-                onClick={() => alert("Weekly report exported! Ready for student parents report cards.")}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 border border-slate-700 transition"
-              >
-                <Download className="w-4 h-4 text-cyan-400" /> Export Weekly CSV Report
-              </button>
-            </div>
-
-          </div>
-        )}
-
       </main>
     </div>
   );
