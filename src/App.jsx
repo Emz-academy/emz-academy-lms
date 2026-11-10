@@ -58,6 +58,27 @@ const INITIAL_COURSES = [
     ]
   },
   {
+  id: 'c11-accounting',
+  title: 'Class 11 Accounting',
+  grade: '11th',
+  subject: 'Accounting',
+  videos: [
+    {
+      id: 'acc-v1',
+      title: 'Introduction to Accounting & Basic Concepts',
+      duration: '45 mins',
+      embedUrl: 'https://drive.google.com/file/d/1U8DerULpNzXM-OHNke4gBVmeYbzVv7Fi/preview'
+    }
+  ],
+  notes: [
+    {
+      id: 'acc-n1',
+      title: 'Class 11 Accounting Study Material & Handouts (PDF)',
+      downloadUrl: 'https://drive.google.com/file/d/1U8DerULpNzXM-OHNke4gBVmeYbzVv7Fi/view?usp=sharing'
+    }
+  ]
+},
+  {
     id: 'bio-12',
     title: 'Biology - Class 12th',
     grade: '12th',
