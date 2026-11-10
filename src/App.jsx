@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { 
   BookOpen, Video, FileText, CheckCircle, Clock, 
   Users, Shield, LogOut, Award, Play, Download, Plus, Key, 
-  LayoutDashboard, Calendar, DollarSign, HelpCircle, Bell, Search, Settings, Building2
+  LayoutDashboard, Calendar, DollarSign, HelpCircle, Bell, Search, Settings, Building2, UserPlus, BarChart3, CheckSquare, Check
 } from 'lucide-react';
 
-// Mock Users Database
+// Mock Users Database with individual subject access lists
 const initialUsers = [
-  { username: 'admin', password: 'admin123', role: 'admin', name: 'EMZ Academy Administrator' },
-  { username: 'student9', password: 'pass123', role: 'student', grade: '9th', name: 'Ali Khan (Grade 9)' },
-  { username: 'student10', password: 'pass123', role: 'student', grade: '10th', name: 'Ayesha Malik (Grade 10)' },
-  { username: 'student11', password: 'pass123', role: 'student', grade: '11th', name: 'Bilal Ahmed (Grade 11)' },
-  { username: 'student12', password: 'pass123', role: 'student', grade: '12th', name: 'Fatima Noor (Grade 12)' },
+  { username: 'admin', password: 'admin123', role: 'admin', name: 'EMZ Academy Administrator', active: true },
+  { username: 'student9', password: 'pass123', role: 'student', grade: '9th', name: 'Ali Khan (Grade 9)', active: true, assignedSubjects: ['9-math', '9-phy', '9-eng'] },
+  { username: 'student10', password: 'pass123', role: 'student', grade: '10th', name: 'Ayesha Malik (Grade 10)', active: true, assignedSubjects: ['10-math', '10-chem', '10-bio'] },
+  { username: 'student11', password: 'pass123', role: 'student', grade: '11th', name: 'Bilal Ahmed (Grade 11)', active: true, assignedSubjects: ['11-acc', '11-math', '11-econ'] },
+  { username: 'student12', password: 'pass123', role: 'student', grade: '12th', name: 'Fatima Noor (Grade 12)', active: true, assignedSubjects: ['12-acc', '12-econ', '12-bank'] },
 ];
 
 // Complete Curriculum Database (Grades 9 to 12) including Class 11 Accounting Google Drive integration
@@ -84,8 +84,17 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const [courses, setCourses] = useState(initialCourses);
+  const [usersList, setUsersList] = useState(initialUsers);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [activeVideo, setActiveVideo] = useState(null);
+
+  // New Student Generation form state
+  const [newStudentName, setNewStudentName] = useState('');
+  const [newStudentUser, setNewStudentUser] = useState('');
+  const [newStudentPass, setNewStudentPass] = useState('');
+  const [newStudentGrade, setNewStudentGrade] = useState('9th');
+  const [selectedNewSubjects, setSelectedNewSubjects] = useState([]);
+  const [successMsg, setSuccessMsg] = useState('');
 
   // Support Ticket state
   const [tickets, setTickets] = useState([
@@ -95,18 +104,22 @@ export default function App() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    const foundUser = initialUsers.find(
+    const foundUser = usersList.find(
       u => u.username === usernameInput.trim() && u.password === passwordInput.trim()
     );
 
     if (foundUser) {
+      if (foundUser.role === 'student' && foundUser.active === false) {
+        setLoginError('Your student account access is currently disabled by admin.');
+        return;
+      }
       setCurrentUser(foundUser);
       setLoginError('');
       setUsernameInput('');
       setPasswordInput('');
       setActiveTab('dashboard');
     } else {
-      setLoginError('Invalid credentials. Please verify your student username and password.');
+      setLoginError('Invalid username or password.');
     }
   };
 
@@ -117,35 +130,77 @@ export default function App() {
     setActiveTab('dashboard');
   };
 
-  // Helper for quick Admin backdoor injection on login screen click
-  const fillAdminDemo = () => {
-    setUsernameInput('admin');
-    setPasswordInput('admin123');
+  // Admin action: Create new student credentials with assigned subjects
+  const handleCreateStudent = (e) => {
+    e.preventDefault();
+    if (!newStudentName || !newStudentUser || !newStudentPass) return;
+    
+    const newStudent = {
+      username: newStudentUser.trim(),
+      password: newStudentPass.trim(),
+      role: 'student',
+      grade: newStudentGrade,
+      name: newStudentName.trim(),
+      active: true,
+      assignedSubjects: selectedNewSubjects
+    };
+
+    setUsersList([...usersList, newStudent]);
+    setNewStudentName('');
+    setNewStudentUser('');
+    setNewStudentPass('');
+    setSelectedNewSubjects([]);
+    setSuccessMsg(`Successfully generated credentials and subject access for ${newStudent.name}!`);
+    setTimeout(() => setSuccessMsg(''), 4000);
   };
 
-  const fillStudentDemo = () => {
-    setUsernameInput('student11');
-    setPasswordInput('pass123');
+  // Admin action: Toggle student access status
+  const toggleStudentAccess = (username) => {
+    setUsersList(usersList.map(u => {
+      if (u.username === username) {
+        return { ...u, active: !u.active };
+      }
+      return u;
+    }));
   };
 
-  // If not logged in, show Professional EMZ Academy Portal Login
+  // Admin action: Toggle specific subject assignment for a student
+  const toggleStudentSubject = (username, courseId) => {
+    setUsersList(usersList.map(u => {
+      if (u.username === username) {
+        const currentAssigned = u.assignedSubjects || [];
+        const isAssigned = currentAssigned.includes(courseId);
+        const updatedSubjects = isAssigned 
+          ? currentAssigned.filter(id => id !== courseId)
+          : [...currentAssigned, courseId];
+        return { ...u, assignedSubjects: updatedSubjects };
+      }
+      return u;
+    }));
+  };
+
+  // If not logged in, show Professional EMZ Academy Portal Login with Official Logo
   if (!currentUser) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-        {/* Background Ambient Glows */}
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-8 shadow-2xl relative z-10 backdrop-blur-xl">
           <div className="text-center mb-8">
-            {/* EMZ Academy Logo Placeholder / Custom Icon container */}
-            <div className="w-20 h-20 bg-slate-950 border border-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner p-3">
-              <div className="text-cyan-400 font-black text-2xl tracking-tighter flex items-center">
-                em<span className="text-blue-500">z</span><span className="w-2 h-2 rounded-full bg-cyan-400 ml-0.5 mb-3"></span>
+            {/* Official EMZ Academy Logo */}
+            <div className="bg-white/5 border border-slate-800 rounded-2xl p-4 inline-block mb-4 shadow-inner">
+              <div className="flex items-baseline justify-center font-black tracking-tighter text-3xl">
+                <span className="text-blue-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]" style={{ color: '#0d235c' }}>em</span>
+                <span className="text-cyan-500" style={{ color: '#00b4d8' }}>z</span>
+                <span className="w-2 h-2 rounded-full bg-cyan-400 ml-0.5 mb-2.5"></span>
+              </div>
+              <div className="text-cyan-400 font-bold text-sm tracking-widest uppercase mt-[-4px]" style={{ color: '#00b4d8' }}>
+                Academy
               </div>
             </div>
-            <h1 className="text-2xl font-black text-white tracking-tight">EMZ Virtual Academy</h1>
-            <p className="text-cyan-400/90 text-xs font-semibold tracking-wider uppercase mt-1">AI-Powered Academic Management System</p>
+            <h1 className="text-xl font-bold text-white tracking-tight">EMZ Academy</h1>
+            <p className="text-slate-400 text-xs mt-1">LMS Portal</p>
           </div>
 
           {loginError && (
@@ -161,7 +216,7 @@ export default function App() {
                 type="text" 
                 value={usernameInput}
                 onChange={(e) => setUsernameInput(e.target.value)}
-                placeholder="e.g. student11"
+                placeholder="Enter username"
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500 transition-colors"
                 required 
               />
@@ -184,17 +239,6 @@ export default function App() {
               Sign In to Portal
             </button>
           </form>
-
-          {/* Quick Demo Fill Buttons (Hidden Credentials Helper) */}
-          <div className="mt-8 pt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-            <button onClick={fillStudentDemo} className="hover:text-cyan-400 transition-colors underline">
-              Fill Student Demo
-            </button>
-            <button onClick={fillAdminDemo} className="hover:text-cyan-400 transition-colors underline flex items-center space-x-1">
-              <Key className="w-3 h-3 text-cyan-400" />
-              <span>Admin Access</span>
-            </button>
-          </div>
         </div>
 
         <p className="text-slate-600 text-xs mt-6 text-center">
@@ -204,29 +248,37 @@ export default function App() {
     );
   }
 
+  // Filter courses: Admins see all; Students see only courses matching their grade AND explicitly assigned to them by admin
   const displayedCourses = currentUser.role === 'admin' 
     ? courses 
-    : courses.filter(c => c.grade === currentUser.grade);
+    : courses.filter(c => c.grade === currentUser.grade && (currentUser.assignedSubjects || []).includes(c.id));
+
+  const studentUsers = usersList.filter(u => u.role === 'student');
+  const gradeFilteredCourses = courses.filter(c => c.grade === newStudentGrade);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      {/* Top Navbar */}
-      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between shadow-sm">
+      {/* Top Navbar with Official EMZ Logo Branding */}
+      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 px-6 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center space-x-4">
-          <div className="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center space-x-2">
-            <div className="text-cyan-400 font-black text-lg tracking-tighter">em<span className="text-blue-500">z</span></div>
-            <span className="text-xs font-bold text-slate-300 border-l border-slate-800 pl-2">Academy LMS</span>
+          <div className="bg-white/5 border border-slate-800 px-3 py-1 rounded-xl flex items-center space-x-2">
+            <div className="flex items-baseline font-black tracking-tighter text-lg">
+              <span style={{ color: '#ffffff' }}>em</span>
+              <span style={{ color: '#00b4d8' }}>z</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 ml-0.5 mb-1.5"></span>
+            </div>
+            <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest border-l border-slate-800 pl-2">Academy</span>
           </div>
-          <div className="hidden md:flex items-center space-x-1 text-xs text-slate-400 bg-slate-850 px-3 py-1 rounded-full border border-slate-800">
+          <div className="hidden md:flex items-center space-x-1.5 text-xs text-slate-400 bg-slate-850 px-3 py-1 rounded-full border border-slate-800">
             <Building2 className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Pakistan 9th–12th Coaching Hub</span>
+            <span>LMS Portal</span>
           </div>
         </div>
 
         <div className="flex items-center space-x-4">
           <div className="text-right hidden sm:block">
             <p className="text-xs font-bold text-white">{currentUser.name}</p>
-            <p className="text-[10px] text-cyan-400 uppercase tracking-wider">{currentUser.role} Account</p>
+            <p className="text-[10px] text-cyan-400 uppercase tracking-wider font-semibold">{currentUser.role} Account</p>
           </div>
           <button 
             onClick={handleLogout}
@@ -256,6 +308,26 @@ export default function App() {
           <span>Syllabus & Lectures</span>
         </button>
 
+        {currentUser.role === 'admin' && (
+          <button 
+            onClick={() => { setActiveTab('students'); setSelectedCourse(null); }}
+            className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg transition-all ${activeTab === 'students' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Student Management & Access</span>
+          </button>
+        )}
+
+        {currentUser.role === 'admin' && (
+          <button 
+            onClick={() => { setActiveTab('stats'); setSelectedCourse(null); }}
+            className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg transition-all ${activeTab === 'stats' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span>Summary Sheets & Stats</span>
+          </button>
+        )}
+
         <button 
           onClick={() => setActiveTab('schedule')}
           className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg transition-all ${activeTab === 'schedule' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
@@ -284,7 +356,7 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-6">
         
-        {/* --- VIEW: COURSE LECTURE PLAYER --- */}
+        {/* --- COURSE LECTURE PLAYER VIEW --- */}
         {selectedCourse ? (
           <div>
             <button 
@@ -304,7 +376,6 @@ export default function App() {
               <h2 className="text-2xl font-extrabold text-white mt-3">{selectedCourse.title}</h2>
             </div>
 
-            {/* Video Player Display */}
             {activeVideo && (
               <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden mb-8 shadow-xl">
                 <div className="p-4 bg-slate-850 border-b border-slate-800 flex items-center justify-between">
@@ -330,7 +401,6 @@ export default function App() {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Video Playlist */}
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
                 <h3 className="text-sm font-bold text-white mb-4 flex items-center space-x-2 uppercase tracking-wider">
                   <Video className="w-4 h-4 text-cyan-400" />
@@ -362,11 +432,10 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Study Material PDF Downloader */}
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
                 <h3 className="text-sm font-bold text-white mb-4 flex items-center space-x-2 uppercase tracking-wider">
                   <FileText className="w-4 h-4 text-emerald-400" />
-                  <span>Study Materials & Google Drive Handouts</span>
+                  <span>Study Materials & Handouts</span>
                 </h3>
                 <div className="space-y-3">
                   {selectedCourse.notes.map((note) => (
@@ -400,31 +469,39 @@ export default function App() {
           </div>
         ) : (
           <>
-            {/* --- TAB: DASHBOARD --- */}
+            {/* --- DASHBOARD TAB --- */}
             {activeTab === 'dashboard' && (
               <div className="space-y-6">
                 <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-800 rounded-3xl p-8 relative overflow-hidden shadow-xl">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none"></div>
                   <div className="max-w-2xl relative z-10">
                     <span className="text-[10px] font-black uppercase tracking-widest bg-cyan-500/10 text-cyan-400 px-3 py-1 rounded-full border border-cyan-500/20">
-                      EMZ Virtual Academy • Live Portal
+                      EMZ Academy • LMS Portal
                     </span>
                     <h2 className="text-3xl font-black text-white mt-4">Welcome back, {currentUser.name}</h2>
                     <p className="text-slate-400 text-sm mt-2 leading-relaxed">
-                      Your AI-powered coaching operating system is fully operational. Access your designated grade curriculum, stream daily recorded lectures, and review study materials below.
+                      Manage student credentials, grant specific subject access, and review academic statistics seamlessly from your EMZ coaching workspace.
                     </p>
                   </div>
                 </div>
 
-                {/* Statistics Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
                     <div className="flex items-center justify-between text-slate-400 mb-3">
-                      <span className="text-xs font-bold uppercase tracking-wider">Registered Subjects</span>
+                      <span className="text-xs font-bold uppercase tracking-wider">Assigned Subjects</span>
                       <BookOpen className="w-5 h-5 text-cyan-400" />
                     </div>
                     <p className="text-2xl font-black text-white">{displayedCourses.length}</p>
-                    <p className="text-[10px] text-slate-500 mt-1">Active for your profile level</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Available for your account</p>
+                  </div>
+
+                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                    <div className="flex items-center justify-between text-slate-400 mb-3">
+                      <span className="text-xs font-bold uppercase tracking-wider">Enrolled Students</span>
+                      <Users className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <p className="text-2xl font-black text-white">{studentUsers.length}</p>
+                    <p className="text-[10px] text-blue-400 mt-1">Active database records</p>
                   </div>
 
                   <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
@@ -433,16 +510,7 @@ export default function App() {
                       <CheckCircle className="w-5 h-5 text-emerald-400" />
                     </div>
                     <p className="text-2xl font-black text-white">98.4%</p>
-                    <p className="text-[10px] text-emerald-400 mt-1">Verified via Biometric/Portal</p>
-                  </div>
-
-                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-                    <div className="flex items-center justify-between text-slate-400 mb-3">
-                      <span className="text-xs font-bold uppercase tracking-wider">Active Exams</span>
-                      <Award className="w-5 h-5 text-blue-400" />
-                    </div>
-                    <p className="text-2xl font-black text-white">Mid-Term</p>
-                    <p className="text-[10px] text-slate-500 mt-1">Scheduled for next week</p>
+                    <p className="text-[10px] text-emerald-400 mt-1">Verified attendance rate</p>
                   </div>
 
                   <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
@@ -451,19 +519,19 @@ export default function App() {
                       <HelpCircle className="w-5 h-5 text-amber-400" />
                     </div>
                     <p className="text-2xl font-black text-white">{tickets.length}</p>
-                    <p className="text-[10px] text-slate-500 mt-1">0 pending issues</p>
+                    <p className="text-[10px] text-slate-500 mt-1">In-portal queries</p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* --- TAB: COURSES / SYLLABUS LIST --- */}
+            {/* --- COURSES / SYLLABUS TAB --- */}
             {(activeTab === 'courses' || activeTab === 'dashboard') && (
               <div className="mt-8">
                 <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <h3 className="text-xl font-black text-white">
-                      {currentUser.role === 'admin' ? 'All Academy Curriculum (Grades 9–12)' : `Grade ${currentUser.grade} Enrolled Subjects`}
+                      {currentUser.role === 'admin' ? 'All Academy Curriculum (Grades 9–12)' : `Grade ${currentUser.grade} Assigned Subjects`}
                     </h3>
                     <p className="text-slate-400 text-xs mt-1">Select a subject card to launch video lectures and Google Drive study materials.</p>
                   </div>
@@ -504,7 +572,207 @@ export default function App() {
               </div>
             )}
 
-            {/* --- TAB: AI TIME TABLE & SCHEDULE --- */}
+            {/* --- STUDENT MANAGEMENT & SUBJECT ACCESS TAB (ADMIN ONLY) --- */}
+            {activeTab === 'students' && currentUser.role === 'admin' && (
+              <div className="space-y-6">
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                  <h3 className="text-xl font-bold text-white mb-2">Student Enrollment & Subject Access Control</h3>
+                  <p className="text-slate-400 text-xs mb-6">Create new student accounts, assign grade levels, and check specific subject permissions.</p>
+
+                  {successMsg && (
+                    <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs p-3 rounded-xl mb-6">
+                      {successMsg}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleCreateStudent} className="bg-slate-850 p-5 rounded-xl border border-slate-800 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
+                        <input 
+                          type="text" 
+                          value={newStudentName}
+                          onChange={(e) => setNewStudentName(e.target.value)}
+                          placeholder="e.g. Sara Khan"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-300 mb-1">Username ID</label>
+                        <input 
+                          type="text" 
+                          value={newStudentUser}
+                          onChange={(e) => setNewStudentUser(e.target.value)}
+                          placeholder="e.g. student11_sara"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                        <input 
+                          type="text" 
+                          value={newStudentPass}
+                          onChange={(e) => setNewStudentPass(e.target.value)}
+                          placeholder="Initial password"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-300 mb-1">Grade Level</label>
+                        <select 
+                          value={newStudentGrade}
+                          onChange={(e) => {
+                            setNewStudentGrade(e.target.value);
+                            setSelectedNewSubjects([]); // reset subject selection on grade change
+                          }}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                        >
+                          <option value="9th">Grade 9th</option>
+                          <option value="10th">Grade 10th</option>
+                          <option value="11th">Grade 11th</option>
+                          <option value="12th">Grade 12th</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Subject checkboxes for new student */}
+                    <div>
+                      <label className="block text-xs font-semibold text-cyan-400 mb-2">Select Initial Subject Access for Grade {newStudentGrade}:</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 bg-slate-900 p-3 rounded-xl border border-slate-800 max-h-40 overflow-y-auto">
+                        {gradeFilteredCourses.map(c => {
+                          const isChecked = selectedNewSubjects.includes(c.id);
+                          return (
+                            <label key={c.id} className="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer p-1.5 hover:bg-slate-850 rounded">
+                              <input 
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {
+                                  if (isChecked) {
+                                    setSelectedNewSubjects(selectedNewSubjects.filter(id => id !== c.id));
+                                  } else {
+                                    setSelectedNewSubjects([...selectedNewSubjects, c.id]);
+                                  }
+                                }}
+                                className="rounded border-slate-700 bg-slate-950 text-cyan-500 focus:ring-0"
+                              />
+                              <span className="truncate">{c.title}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <button 
+                      type="submit"
+                      className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 px-6 rounded-xl transition-all shadow-md"
+                    >
+                      Generate Student Account & Permissions
+                    </button>
+                  </form>
+                </div>
+
+                {/* Enrolled Students Table with Granular Subject Access Toggles */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+                  <h4 className="text-sm font-bold text-white uppercase tracking-wider">Enrolled Students & Granular Subject Permissions</h4>
+                  
+                  {studentUsers.map((stu) => {
+                    const studentGradeCourses = courses.filter(c => c.grade === stu.grade);
+                    return (
+                      <div key={stu.username} className="bg-slate-850 border border-slate-800 rounded-xl p-5 space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-800">
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-bold text-white text-sm">{stu.name}</span>
+                              <span className="text-xs font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">{stu.username}</span>
+                              <span className="text-xs text-slate-400">Grade {stu.grade}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${stu.active !== false ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                              {stu.active !== false ? 'Portal Access Active' : 'Portal Access Revoked'}
+                            </span>
+                            <button 
+                              onClick={() => toggleStudentAccess(stu.username)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${stu.active !== false ? 'bg-rose-600/20 text-rose-400 hover:bg-rose-600/30' : 'bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30'}`}
+                            >
+                              {stu.active !== false ? 'Revoke Portal' : 'Grant Portal'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Subject Checkboxes Grid for existing student */}
+                        <div>
+                          <p className="text-xs font-semibold text-slate-300 mb-2">Granted Subject Access (Check/Uncheck to update in real-time):</p>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 bg-slate-900 p-3 rounded-xl border border-slate-800">
+                            {studentGradeCourses.map(course => {
+                              const hasAccess = (stu.assignedSubjects || []).includes(course.id);
+                              return (
+                                <label key={course.id} className="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer p-1.5 hover:bg-slate-800/60 rounded">
+                                  <input 
+                                    type="checkbox"
+                                    checked={hasAccess}
+                                    onChange={() => toggleStudentSubject(stu.username, course.id)}
+                                    className="rounded border-slate-700 bg-slate-950 text-cyan-500 focus:ring-0"
+                                  />
+                                  <span className="truncate">{course.title}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* --- SUMMARY SHEETS & STATS TAB (ADMIN ONLY) --- */}
+            {activeTab === 'stats' && currentUser.role === 'admin' && (
+              <div className="space-y-6">
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                  <h3 className="text-xl font-bold text-white mb-2">Summary Sheets & Academy Analytics</h3>
+                  <p className="text-slate-400 text-xs mb-6">Comprehensive statistical reports and enrollment breakdowns across all grade levels.</p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-slate-850 p-5 rounded-2xl border border-slate-800">
+                      <p className="text-xs font-bold text-cyan-400 uppercase tracking-wider">Grade-Wise Enrollment</p>
+                      <ul className="mt-4 space-y-2 text-xs text-slate-300">
+                        <li className="flex justify-between"><span>Grade 9th:</span> <strong className="text-white">12 Students</strong></li>
+                        <li className="flex justify-between"><span>Grade 10th:</span> <strong className="text-white">15 Students</strong></li>
+                        <li className="flex justify-between"><span>Grade 11th (Science/Commerce):</span> <strong className="text-white">22 Students</strong></li>
+                        <li className="flex justify-between"><span>Grade 12th:</span> <strong className="text-white">18 Students</strong></li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-slate-850 p-5 rounded-2xl border border-slate-800">
+                      <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Fee Collection Summary</p>
+                      <ul className="mt-4 space-y-2 text-xs text-slate-300">
+                        <li className="flex justify-between"><span>Total Vouchers Generated:</span> <strong className="text-white">67</strong></li>
+                        <li className="flex justify-between"><span>Paid & Verified:</span> <strong className="text-emerald-400">62</strong></li>
+                        <li className="flex justify-between"><span>Pending / Defaulters:</span> <strong className="text-amber-400">5</strong></li>
+                        <li className="flex justify-between"><span>Collection Rate:</span> <strong className="text-white">92.5%</strong></li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-slate-850 p-5 rounded-2xl border border-slate-800">
+                      <p className="text-xs font-bold text-blue-400 uppercase tracking-wider">Academic Resources</p>
+                      <ul className="mt-4 space-y-2 text-xs text-slate-300">
+                        <li className="flex justify-between"><span>Total Subjects:</span> <strong className="text-white">43 Modules</strong></li>
+                        <li className="flex justify-between"><span>Video Lectures Uploaded:</span> <strong className="text-white">43+</strong></li>
+                        <li className="flex justify-between"><span>Google Drive Handouts:</span> <strong className="text-white">Active</strong></li>
+                        <li className="flex justify-between"><span>System Status:</span> <strong className="text-emerald-400">Optimal</strong></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* --- AI TIME TABLE TAB --- */}
             {activeTab === 'schedule' && (
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
                 <div>
@@ -531,7 +799,7 @@ export default function App() {
               </div>
             )}
 
-            {/* --- TAB: FEE & ACCOUNTS --- */}
+            {/* --- FEE & ACCOUNTS TAB --- */}
             {activeTab === 'fees' && (
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
                 <div>
@@ -550,7 +818,7 @@ export default function App() {
               </div>
             )}
 
-            {/* --- TAB: SUPPORT TICKETS --- */}
+            {/* --- SUPPORT TICKETS TAB --- */}
             {activeTab === 'support' && (
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
                 <div>
