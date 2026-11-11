@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { 
   BookOpen, Video, FileText, CheckCircle, Clock, 
   Users, LogOut, Award, Play, Download, Plus, Key, 
-  LayoutDashboard, DollarSign, BarChart3, CheckSquare, HelpCircle, FileSpreadsheet
+  LayoutDashboard, DollarSign, BarChart3, CheckSquare, HelpCircle, FileSpreadsheet, Printer
 } from 'lucide-react';
 
-// Mock Users Database
+// Mock Users Database with Dynamic Fee Voucher Records
 const initialUsers = [
   { username: 'admin', password: 'admin123', role: 'admin', name: 'EMZ Academy Admin', active: true },
   { 
@@ -13,14 +13,14 @@ const initialUsers = [
     password: 'pass123', 
     role: 'student', 
     grade: '10th', 
-    name: 'Ayesha Malik (Grade 10)', 
+    name: 'Ayesha Malik', 
     active: true, 
     assignedSubjects: ['10-math', '10-phy', '10-eng'], 
     standardFee: 2500,
     feeRecords: {
-      'January 2026': { status: 'Paid', date: '2026-01-05' },
-      'February 2026': { status: 'Paid', date: '2026-02-04' },
-      'March 2026': { status: 'Pending', date: '-' }
+      'January 2026': { status: 'Paid', date: '2026-01-05', feeAmount: 2500 },
+      'February 2026': { status: 'Paid', date: '2026-02-04', feeAmount: 2500 },
+      'March 2026': { status: 'Pending', date: '-', feeAmount: 2500 }
     },
     progress: { '10-math': 12, '10-phy': 8, '10-eng': 14 }
   },
@@ -29,57 +29,25 @@ const initialUsers = [
     password: 'pass123', 
     role: 'student', 
     grade: '11th', 
-    name: 'Bilal Ahmed (Grade 11)', 
+    name: 'Bilal Ahmed', 
     active: true, 
     assignedSubjects: ['11-acc', '11-math'], 
     standardFee: 2500,
     feeRecords: {
-      'January 2026': { status: 'Paid', date: '2026-01-10' },
-      'February 2026': { status: 'Pending', date: '-' },
-      'March 2026': { status: 'Pending', date: '-' }
+      'January 2026': { status: 'Paid', date: '2026-01-10', feeAmount: 2500 },
+      'February 2026': { status: 'Pending', date: '-', feeAmount: 2500 },
+      'March 2026': { status: 'Pending', date: '-', feeAmount: 2500 }
     },
     progress: { '11-acc': 15, '11-math': 10 }
   },
 ];
 
-// Complete Curriculum Database for Grades 9, 10, 11, 12 (Clean names without High School / First Year)
 const initialCourses = [
-  // --- GRADE 9 ---
-  { id: '9-eng', title: 'English', grade: '9th', subject: 'Languages', totalLectures: 16, totalHours: '32 Hours' },
-  { id: '9-urdu', title: 'Urdu', grade: '9th', subject: 'Languages', totalLectures: 15, totalHours: '30 Hours' },
-  { id: '9-islamiat', title: 'Islamiat', grade: '9th', subject: 'Islamic Studies', totalLectures: 12, totalHours: '24 Hours' },
-  { id: '9-math', title: 'Mathematics', grade: '9th', subject: 'Mathematics', totalLectures: 24, totalHours: '48 Hours' },
-  { id: '9-phy', title: 'Physics', grade: '9th', subject: 'Science', totalLectures: 20, totalHours: '40 Hours' },
-  { id: '9-chem', title: 'Chemistry', grade: '9th', subject: 'Science', totalLectures: 22, totalHours: '44 Hours' },
-  { id: '9-bio', title: 'Biology', grade: '9th', subject: 'Science', totalLectures: 18, totalHours: '36 Hours' },
-  { id: '9-cs', title: 'Computer Science', grade: '9th', subject: 'Computer', totalLectures: 20, totalHours: '40 Hours' },
-
-  // --- GRADE 10 ---
-  { id: '10-eng', title: 'English', grade: '10th', subject: 'Languages', totalLectures: 16, totalHours: '32 Hours' },
-  { id: '10-urdu', title: 'Urdu', grade: '10th', subject: 'Languages', totalLectures: 15, totalHours: '30 Hours' },
-  { id: '10-pst', title: 'Pakistan Studies', grade: '10th', subject: 'Social Studies', totalLectures: 14, totalHours: '28 Hours' },
-  { id: '10-math', title: 'Mathematics', grade: '10th', subject: 'Mathematics', totalLectures: 24, totalHours: '48 Hours' },
+  { id: '10-math', title: 'Mathematics', grade: '10th', subject: 'Math', totalLectures: 24, totalHours: '48 Hours' },
   { id: '10-phy', title: 'Physics', grade: '10th', subject: 'Science', totalLectures: 20, totalHours: '40 Hours' },
-  { id: '10-chem', title: 'Chemistry', grade: '10th', subject: 'Science', totalLectures: 22, totalHours: '44 Hours' },
-  { id: '10-bio', title: 'Biology', grade: '10th', subject: 'Science', totalLectures: 18, totalHours: '36 Hours' },
-  { id: '10-cs', title: 'Computer Science', grade: '10th', subject: 'Computer', totalLectures: 20, totalHours: '40 Hours' },
-
-  // --- GRADE 11 ---
-  { id: '11-eng', title: 'English', grade: '11th', subject: 'Languages', totalLectures: 18, totalHours: '36 Hours' },
-  { id: '11-urdu', title: 'Urdu', grade: '11th', subject: 'Languages', totalLectures: 16, totalHours: '32 Hours' },
-  { id: '11-math', title: 'Mathematics', grade: '11th', subject: 'Mathematics', totalLectures: 28, totalHours: '56 Hours' },
-  { id: '11-phy', title: 'Physics', grade: '11th', subject: 'Science', totalLectures: 25, totalHours: '50 Hours' },
-  { id: '11-chem', title: 'Chemistry', grade: '11th', subject: 'Science', totalLectures: 26, totalHours: '52 Hours' },
+  { id: '10-eng', title: 'English', grade: '10th', subject: 'Languages', totalLectures: 16, totalHours: '32 Hours' },
   { id: '11-acc', title: 'Principles of Accounting', grade: '11th', subject: 'Commerce', totalLectures: 30, totalHours: '60 Hours' },
-  { id: '11-econ', title: 'Economics', grade: '11th', subject: 'Commerce', totalLectures: 20, totalHours: '40 Hours' },
-
-  // --- GRADE 12 ---
-  { id: '12-eng', title: 'English', grade: '12th', subject: 'Languages', totalLectures: 18, totalHours: '36 Hours' },
-  { id: '12-math', title: 'Mathematics', grade: '12th', subject: 'Mathematics', totalLectures: 30, totalHours: '60 Hours' },
-  { id: '12-phy', title: 'Physics', grade: '12th', subject: 'Science', totalLectures: 25, totalHours: '50 Hours' },
-  { id: '12-chem', title: 'Chemistry', grade: '12th', subject: 'Science', totalLectures: 26, totalHours: '52 Hours' },
-  { id: '12-acc', title: 'Principles of Accounting', grade: '12th', subject: 'Commerce', totalLectures: 32, totalHours: '64 Hours' },
-  { id: '12-econ', title: 'Economics', grade: '12th', subject: 'Commerce', totalLectures: 22, totalHours: '44 Hours' },
+  { id: '11-math', title: 'Mathematics', grade: '11th', subject: 'Math', totalLectures: 28, totalHours: '56 Hours' },
 ];
 
 const monthsList = ['January 2026', 'February 2026', 'March 2026', 'April 2026', 'May 2026', 'June 2026'];
@@ -95,8 +63,7 @@ export default function App() {
   const [usersList, setUsersList] = useState(initialUsers);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
-  // Slicers / Dropdowns for Admin Dashboard Status
-  const [selectedGradeFilter, setSelectedGradeFilter] = useState('10th');
+  // Month Slicer State
   const [selectedMonth, setSelectedMonth] = useState('March 2026');
 
   // New Student Form State
@@ -131,15 +98,18 @@ export default function App() {
     setSelectedCourse(null);
   };
 
+  // Toggle Fee status for a specific student and month (Captures exact date & 2500 fee amount)
   const toggleStudentMonthFee = (username, month) => {
+    const currentDateStr = new Date().toISOString().split('T')[0];
     setUsersList(usersList.map(u => {
       if (u.username === username) {
         const records = { ...(u.feeRecords || {}) };
-        const currentRec = records[month] || { status: 'Pending', date: '-' };
+        const currentRec = records[month] || { status: 'Pending', date: '-', feeAmount: 2500 };
         const newStatus = currentRec.status === 'Paid' ? 'Pending' : 'Paid';
         records[month] = {
           status: newStatus,
-          date: newStatus === 'Paid' ? new Date().toISOString().split('T')[0] : '-'
+          date: newStatus === 'Paid' ? currentDateStr : '-',
+          feeAmount: 2500
         };
         return { ...u, feeRecords: records };
       }
@@ -161,9 +131,9 @@ export default function App() {
       assignedSubjects: newSelectedSubjects,
       standardFee: 2500,
       feeRecords: {
-        'January 2026': { status: 'Pending', date: '-' },
-        'February 2026': { status: 'Pending', date: '-' },
-        'March 2026': { status: 'Pending', date: '-' }
+        'January 2026': { status: 'Pending', date: '-', feeAmount: 2500 },
+        'February 2026': { status: 'Pending', date: '-', feeAmount: 2500 },
+        'March 2026': { status: 'Pending', date: '-', feeAmount: 2500 }
       },
       progress: {}
     };
@@ -192,10 +162,10 @@ export default function App() {
   };
 
   const exportToExcel = () => {
-    let csvContent = "data:text/csv;charset=utf-8,Name,Username,Grade,Month,Fee Status,Amount\n";
+    let csvContent = "data:text/csv;charset=utf-8,Student Name,Username,Grade,Month,Date Marked,Fee Status,Amount\n";
     usersList.filter(u => u.role === 'student').forEach(s => {
-      const rec = (s.feeRecords || {})[selectedMonth] || { status: 'Pending' };
-      csvContent += `${s.name},${s.username},${s.grade},${selectedMonth},${rec.status},2500\n`;
+      const rec = (s.feeRecords || {})[selectedMonth] || { status: 'Pending', date: '-' };
+      csvContent += `${s.name},${s.username},${s.grade},${selectedMonth},${rec.date},${rec.status},2500\n`;
     });
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -204,6 +174,15 @@ export default function App() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // Helper to get titles of assigned subjects for a student
+  const getStudentSubjectNames = (assignedIds) => {
+    if (!assignedIds || assignedIds.length === 0) return 'No Subjects Enrolled';
+    return courses
+      .filter(c => assignedIds.includes(c.id))
+      .map(c => c.title)
+      .join(', ');
   };
 
   // --- 1. LOGIN SCREEN ---
@@ -262,15 +241,12 @@ export default function App() {
     );
   }
 
-  const studentUsers = usersList.filter(u => u.role === 'student');
-  const gradeFilteredCourses = courses.filter(c => c.grade === newGrade);
-
-  // For students, filter by their assigned subjects. For admin, filter by the selected grade slicer.
   const displayedCourses = currentUser.role === 'admin'
-    ? courses.filter(c => c.grade === selectedGradeFilter)
+    ? courses 
     : courses.filter(c => c.grade === currentUser.grade && (currentUser.assignedSubjects || []).includes(c.id));
 
-  const totalUploadedLecturesCount = courses.reduce((acc, curr) => acc + curr.totalLectures, 0);
+  const studentUsers = usersList.filter(u => u.role === 'student');
+  const gradeFilteredCourses = courses.filter(c => c.grade === newGrade);
 
   // --- 2. AFTER LOGIN INTERFACE ---
   return (
@@ -358,7 +334,7 @@ export default function App() {
                 <h2 className="text-2xl font-black text-slate-800 mt-3">{selectedCourse.title}</h2>
                 <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-bold text-slate-800">Google Drive Secure Material & Lecture Link</p>
+                    <p className="text-xs font-bold text-slate-800">Google Drive Material & Lecture Link</p>
                     <p className="text-[10px] text-slate-500">Zero-cost hosting integration</p>
                   </div>
                   <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" className="bg-cyan-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm">
@@ -372,88 +348,38 @@ export default function App() {
               {/* --- DASHBOARD --- */}
               {activeTab === 'dashboard' && (
                 <div className="space-y-6">
-                  {/* Top Summary Cards for Admin */}
-                  {currentUser.role === 'admin' && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
-                        <div>
-                          <p className="text-xs font-bold uppercase text-slate-400">Total Enrolled Students</p>
-                          <p className="text-3xl font-black text-slate-800 mt-1">{studentUsers.length}</p>
-                        </div>
-                        <div className="p-3 bg-cyan-50 text-cyan-600 rounded-xl">
-                          <Users className="w-6 h-6" />
-                        </div>
-                      </div>
+                  <h1 className="text-2xl font-black text-slate-800">Dashboard & Subject Coverage</h1>
+                  <p className="text-xs text-slate-500">Your assigned subjects and lecture completion progress:</p>
 
-                      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
-                        <div>
-                          <p className="text-xs font-bold uppercase text-slate-400">Total Lectures Uploaded</p>
-                          <p className="text-3xl font-black text-slate-800 mt-1">{totalUploadedLecturesCount}+</p>
-                        </div>
-                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-                          <Video className="w-6 h-6" />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
-                      <div>
-                        <h1 className="text-xl font-black text-slate-800">Subjects & Lecture Upload Status</h1>
-                        <p className="text-xs text-slate-500 mt-0.5">Review grade-wise curriculum modules, total lectures, and hours.</p>
-                      </div>
-
-                      {/* Grade Slicer / Dropdown for Admin */}
-                      {currentUser.role === 'admin' && (
-                        <div className="flex items-center space-x-2">
-                          <label className="text-xs font-bold text-slate-600">Select Grade:</label>
-                          <select 
-                            value={selectedGradeFilter}
-                            onChange={(e) => setSelectedGradeFilter(e.target.value)}
-                            className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-cyan-500"
-                          >
-                            <option value="9th">Grade 9th</option>
-                            <option value="10th">Grade 10th</option>
-                            <option value="11th">Grade 11th</option>
-                            <option value="12th">Grade 12th</option>
-                          </select>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Subject Cards Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                      {displayedCourses.map((course) => {
-                        return (
-                          <div 
-                            key={course.id}
-                            onClick={() => { setSelectedCourse(course); }}
-                            className="bg-slate-50 border border-slate-200 hover:border-cyan-400 rounded-2xl p-5 cursor-pointer transition-all shadow-sm hover:shadow-md flex flex-col justify-between"
-                          >
-                            <div>
-                              <div className="flex items-center justify-between mb-3">
-                                <span className="text-[10px] font-bold uppercase tracking-wider bg-cyan-100 text-cyan-700 px-2.5 py-0.5 rounded-full">
-                                  Grade {course.grade}
-                                </span>
-                                <span className="text-[10px] text-slate-400 font-semibold">{course.subject}</span>
-                              </div>
-
-                              <h3 className="text-base font-bold text-slate-800 mb-3">{course.title}</h3>
-
-                              <div className="space-y-1 text-xs text-slate-600 mb-4 bg-white p-3 rounded-xl border border-slate-100">
-                                <div className="flex justify-between"><span>Total Lectures:</span> <strong className="text-slate-800">{course.totalLectures} Lectures</strong></div>
-                                <div className="flex justify-between"><span>Course Duration:</span> <strong className="text-slate-800">{course.totalHours}</strong></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {displayedCourses.map((course) => {
+                      return (
+                        <div 
+                          key={course.id}
+                          onClick={() => { setSelectedCourse(course); }}
+                          className="bg-white border border-slate-200 hover:border-cyan-400 rounded-2xl p-6 cursor-pointer transition-all shadow-sm hover:shadow-md flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center space-x-3">
+                                <div className="p-2.5 bg-cyan-50 text-cyan-600 rounded-xl">
+                                  <BookOpen className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Grade {course.grade}</span>
+                                  <h3 className="text-base font-bold text-slate-800">{course.title}</h3>
+                                </div>
                               </div>
                             </div>
 
-                            <div className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider flex items-center space-x-1">
-                              <span>View Content & Materials →</span>
+                            <div className="space-y-1.5 text-xs text-slate-600 mb-4">
+                              <div className="flex justify-between"><span>Total Lectures:</span> <strong className="text-slate-800">{course.totalLectures} Lectures</strong></div>
+                              <div className="flex justify-between"><span>Duration:</span> <strong className="text-slate-800">{course.totalHours}</strong></div>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -466,17 +392,17 @@ export default function App() {
                 </div>
               )}
 
-              {/* --- FEES --- */}
+              {/* --- FEE VOUCHERS (AUTOMATED DYNAMIC VOUCHER GENERATOR) --- */}
               {activeTab === 'fees' && (
                 <div className="space-y-6">
                   <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
                       <div>
                         <h3 className="text-xl font-bold text-slate-800">Fee Vouchers & Payment Receipts</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">EMZ Academy official fee records and monthly receipts.</p>
+                        <p className="text-xs text-slate-500 mt-0.5">EMZ Academy official fee records and monthly vouchers.</p>
                       </div>
 
-                      {/* Month Slicer */}
+                      {/* Month Slicer Dropdown */}
                       <div className="flex items-center space-x-2">
                         <label className="text-xs font-bold text-slate-600">Select Month:</label>
                         <select 
@@ -491,30 +417,31 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* If Student View */}
+                    {/* --- STUDENT CREDENTIAL / LOGIN AREA FEE VOUCHER --- */}
                     {currentUser.role === 'student' && (() => {
-                      const rec = (currentUser.feeRecords || {})[selectedMonth] || { status: 'Pending', date: '-' };
+                      const rec = (currentUser.feeRecords || {})[selectedMonth] || { status: 'Pending', date: '-', feeAmount: 2500 };
                       const isPaid = rec.status === 'Paid';
+                      const enrolledSubjectsText = getStudentSubjectNames(currentUser.assignedSubjects);
+
                       return (
                         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-6">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-4">
                             <div>
                               <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-full border border-cyan-200">
-                                EMZ Academy Official Fee Voucher
+                                EMZ Academy Official Fee Receipt
                               </span>
-                              <h4 className="text-lg font-black text-slate-800 mt-2">Monthly Tuition Fee - {selectedMonth}</h4>
-                              <p className="text-xs text-slate-500 mt-1">Standard Fee Amount: <strong className="text-slate-800">Rs. 2,500</strong></p>
+                              <h4 className="text-lg font-black text-slate-800 mt-2">Billing Month: {selectedMonth}</h4>
                             </div>
                             <div className="text-right">
                               <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${isPaid ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}`}>
                                 Status: {rec.status}
                               </span>
-                              <p className="text-[10px] text-slate-400 mt-1">Last Payment Date: {rec.date}</p>
+                              <p className="text-[10px] text-slate-400 mt-1">Payment Date: {rec.date}</p>
                             </div>
                           </div>
 
-                          {/* Printable / Downloadable Voucher Box with EMZ Academy Logo */}
-                          <div className="bg-white border-2 border-dashed border-slate-300 rounded-2xl p-6 space-y-4 shadow-sm">
+                          {/* Dynamic PDF/Printable Voucher Layout matching requested particulars */}
+                          <div className="bg-white border-2 border-dashed border-slate-300 rounded-2xl p-6 space-y-6 shadow-sm">
                             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                               <div className="flex items-baseline font-black tracking-tighter text-2xl">
                                 <span style={{ color: '#0d235c' }}>em</span>
@@ -523,39 +450,58 @@ export default function App() {
                                 <span className="text-[10px] uppercase tracking-widest border-l border-slate-200 ml-2 pl-2" style={{ color: '#00b4d8' }}>Academy</span>
                               </div>
                               <div className="text-right">
-                                <p className="text-xs font-bold text-slate-800">Fee Receipt / Voucher</p>
-                                <p className="text-[10px] text-slate-400">Billing Cycle: {selectedMonth}</p>
+                                <p className="text-xs font-bold text-slate-800">TUITION FEE RECEIPT</p>
+                                <p className="text-[10px] text-slate-400">Standard Rate: Rs. 2,500/month</p>
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 text-xs">
-                              <div>
-                                <p className="text-slate-400">Student Name:</p>
-                                <p className="font-bold text-slate-800">{currentUser.name}</p>
+                            {/* Particulars Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <span className="text-[10px] text-slate-400 font-bold uppercase">a) Student Name</span>
+                                <p className="font-bold text-slate-800 text-sm mt-0.5">{currentUser.name}</p>
                               </div>
-                              <div>
-                                <p className="text-slate-400">Grade Level:</p>
-                                <p className="font-bold text-slate-800">Grade {currentUser.grade}</p>
+
+                              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <span className="text-[10px] text-slate-400 font-bold uppercase">b) Class Enrolled</span>
+                                <p className="font-bold text-slate-800 text-sm mt-0.5">Grade {currentUser.grade}</p>
                               </div>
-                              <div>
-                                <p className="text-slate-400">Standard Fee:</p>
-                                <p className="font-bold text-slate-800">Rs. 2,500</p>
+
+                              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <span className="text-[10px] text-slate-400 font-bold uppercase">c) Billing Month</span>
+                                <p className="font-bold text-cyan-600 text-sm mt-0.5">{selectedMonth}</p>
                               </div>
-                              <div>
-                                <p className="text-slate-400">Payment Status:</p>
-                                <p className={`font-bold ${isPaid ? 'text-emerald-600' : 'text-amber-600'}`}>{rec.status}</p>
+
+                              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <span className="text-[10px] text-slate-400 font-bold uppercase">d) Payment / Marked Date</span>
+                                <p className="font-bold text-slate-800 text-sm mt-0.5">{rec.date}</p>
+                              </div>
+
+                              <div className="md:col-span-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <span className="text-[10px] text-slate-400 font-bold uppercase">e) Subjects Enrolled</span>
+                                <p className="font-semibold text-slate-700 text-xs mt-0.5">{enrolledSubjectsText}</p>
+                              </div>
+
+                              <div className="md:col-span-2 p-3 bg-emerald-50/50 rounded-xl border border-emerald-200 flex items-center justify-between">
+                                <div>
+                                  <span className="text-[10px] text-emerald-700 font-bold uppercase">f) Total Fee Amount</span>
+                                  <p className="font-black text-emerald-800 text-lg">Rs. 2,500 PK</p>
+                                </div>
+                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${isPaid ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'}`}>
+                                  {isPaid ? 'PAID & VERIFIED' : 'PENDING PAYMENT'}
+                                </span>
                               </div>
                             </div>
 
                             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                              <p className="text-[10px] text-slate-400">Verified by EMZ Academy Accounts Department</p>
+                              <p className="text-[10px] text-slate-400">Generated automatically via EMZ Academy LMS Portal</p>
                               <button 
-                                onClick={() => alert(`Downloading EMZ Academy Fee Receipt for ${selectedMonth}...`)}
-                                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1 shadow-sm ${isPaid ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-slate-200 text-slate-600 cursor-not-allowed'}`}
+                                onClick={() => alert(`Downloading official Fee Receipt PDF for ${currentUser.name} (${selectedMonth})...`)}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm ${isPaid ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-slate-200 text-slate-600 cursor-not-allowed'}`}
                                 disabled={!isPaid}
                               >
                                 <Download className="w-3.5 h-3.5" />
-                                <span>{isPaid ? 'Download Fee Receipt PDF' : 'Receipt Locked (Pending)'}</span>
+                                <span>{isPaid ? 'Download Fee Receipt PDF' : 'Voucher Locked (Pending)'}</span>
                               </button>
                             </div>
                           </div>
@@ -563,12 +509,12 @@ export default function App() {
                       );
                     })()}
 
-                    {/* If Admin View */}
+                    {/* --- ADMIN MODE: STUDENT FEE MANAGEMENT TABLE --- */}
                     {currentUser.role === 'admin' && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                            Enrolled Students Fee Status for <span className="text-cyan-600">{selectedMonth}</span>
+                            Fee Status & Voucher Trigger for <span className="text-cyan-600">{selectedMonth}</span>
                           </h4>
                           <button 
                             onClick={exportToExcel}
@@ -584,21 +530,24 @@ export default function App() {
                             <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] border-b border-slate-200">
                               <tr>
                                 <th className="p-3">Student Name</th>
-                                <th className="p-3">Grade</th>
+                                <th className="p-3">Class Enrolled</th>
+                                <th className="p-3">Enrolled Subjects</th>
                                 <th className="p-3">Standard Fee</th>
-                                <th className="p-3">Last Payment Date</th>
+                                <th className="p-3">Date Marked</th>
                                 <th className="p-3">Status ({selectedMonth})</th>
-                                <th className="p-3 text-right">Action / Toggle</th>
+                                <th className="p-3 text-right">Admin Action</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                               {studentUsers.map((stu) => {
-                                const rec = (stu.feeRecords || {})[selectedMonth] || { status: 'Pending', date: '-' };
+                                const rec = (stu.feeRecords || {})[selectedMonth] || { status: 'Pending', date: '-', feeAmount: 2500 };
                                 const isPaid = rec.status === 'Paid';
+                                const subNames = getStudentSubjectNames(stu.assignedSubjects);
                                 return (
                                   <tr key={stu.username} className="hover:bg-slate-50/50">
                                     <td className="p-3 font-bold text-slate-800">{stu.name}</td>
                                     <td className="p-3">Grade {stu.grade}</td>
+                                    <td className="p-3 text-slate-600 max-w-xs truncate">{subNames}</td>
                                     <td className="p-3 font-mono font-bold text-slate-800">Rs. 2,500</td>
                                     <td className="p-3 font-mono text-slate-500">{rec.date}</td>
                                     <td className="p-3">
@@ -606,12 +555,12 @@ export default function App() {
                                         {rec.status}
                                       </span>
                                     </td>
-                                    <td className="p-3 text-right space-x-2">
+                                    <td className="p-3 text-right">
                                       <button 
                                         onClick={() => toggleStudentMonthFee(stu.username, selectedMonth)}
-                                        className={`px-3 py-1 rounded text-xs font-bold ${isPaid ? 'bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200'}`}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${isPaid ? 'bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200' : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm'}`}
                                       >
-                                        {isPaid ? 'Mark Pending' : 'Mark Paid'}
+                                        {isPaid ? 'Mark Fee Pending' : 'Mark Fee Paid'}
                                       </button>
                                     </td>
                                   </tr>
