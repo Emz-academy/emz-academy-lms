@@ -18,6 +18,12 @@ const initialUsers = [
     grade: '10th', 
     name: 'Ayesha Malik', 
     active: true, 
+
+    attendance: {
+  attended: 15,
+  total: 20
+},
+    
     assignedSubjects: ['10-math', '10-phy', '10-eng'], 
     standardFee: 2500,
     feeRecords: {
@@ -33,7 +39,13 @@ const initialUsers = [
     role: 'student', 
     grade: '11th', 
     name: 'Bilal Ahmed', 
-    active: true, 
+    active: true,
+
+    attendance: {
+  attended: 15,
+  total: 20
+},
+    
     assignedSubjects: ['11-acc', '11-math'], 
     standardFee: 2500,
     feeRecords: {
