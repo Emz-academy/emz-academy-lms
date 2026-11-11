@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { 
   BookOpen, Video, FileText, CheckCircle, Clock, 
   Users, LogOut, Award, Play, Download, Plus, Key, 
-  LayoutDashboard, DollarSign, BarChart3, CheckSquare, HelpCircle, FileSpreadsheet, UserPlus
+  LayoutDashboard, DollarSign, BarChart3, CheckSquare, HelpCircle, FileSpreadsheet
 } from 'lucide-react';
 
-// Mock Users Database with individual subject access lists & progress tracking
+// Mock Users Database
 const initialUsers = [
   { username: 'admin', password: 'admin123', role: 'admin', name: 'EMZ Academy Admin', active: true },
   { 
@@ -15,9 +15,14 @@ const initialUsers = [
     grade: '10th', 
     name: 'Ayesha Malik (Grade 10)', 
     active: true, 
-    assignedSubjects: ['10-math', '10-phy', '10-eng'], // 3 subjects granted out of 5
-    feeStatus: 'Paid',
-    progress: { '10-math': 12, '10-phy': 8, '10-eng': 14 } // lectures completed per subject
+    assignedSubjects: ['10-math', '10-phy', '10-eng'], 
+    standardFee: 2500,
+    feeRecords: {
+      'January 2026': { status: 'Paid', date: '2026-01-05' },
+      'February 2026': { status: 'Paid', date: '2026-02-04' },
+      'March 2026': { status: 'Pending', date: '-' }
+    },
+    progress: { '10-math': 12, '10-phy': 8, '10-eng': 14 }
   },
   { 
     username: 'student11', 
@@ -27,26 +32,57 @@ const initialUsers = [
     name: 'Bilal Ahmed (Grade 11)', 
     active: true, 
     assignedSubjects: ['11-acc', '11-math'], 
-    feeStatus: 'Pending',
+    standardFee: 2500,
+    feeRecords: {
+      'January 2026': { status: 'Paid', date: '2026-01-10' },
+      'February 2026': { status: 'Pending', date: '-' },
+      'March 2026': { status: 'Pending', date: '-' }
+    },
     progress: { '11-acc': 15, '11-math': 10 }
   },
 ];
 
-// Complete Courses Database
+// Complete Curriculum Database for Grades 9, 10, 11, 12 (Clean names without High School / First Year)
 const initialCourses = [
+  // --- GRADE 9 ---
+  { id: '9-eng', title: 'English', grade: '9th', subject: 'Languages', totalLectures: 16, totalHours: '32 Hours' },
+  { id: '9-urdu', title: 'Urdu', grade: '9th', subject: 'Languages', totalLectures: 15, totalHours: '30 Hours' },
+  { id: '9-islamiat', title: 'Islamiat', grade: '9th', subject: 'Islamic Studies', totalLectures: 12, totalHours: '24 Hours' },
+  { id: '9-math', title: 'Mathematics', grade: '9th', subject: 'Mathematics', totalLectures: 24, totalHours: '48 Hours' },
+  { id: '9-phy', title: 'Physics', grade: '9th', subject: 'Science', totalLectures: 20, totalHours: '40 Hours' },
+  { id: '9-chem', title: 'Chemistry', grade: '9th', subject: 'Science', totalLectures: 22, totalHours: '44 Hours' },
+  { id: '9-bio', title: 'Biology', grade: '9th', subject: 'Science', totalLectures: 18, totalHours: '36 Hours' },
+  { id: '9-cs', title: 'Computer Science', grade: '9th', subject: 'Computer', totalLectures: 20, totalHours: '40 Hours' },
+
   // --- GRADE 10 ---
-  { id: '10-math', title: 'High School Mathematics', grade: '10th', subject: 'Math', totalLectures: 24, totalHours: '48 Hours' },
-  { id: '10-phy', title: 'High School Physics', grade: '10th', subject: 'Science', totalLectures: 20, totalHours: '40 Hours' },
-  { id: '10-chem', title: 'High School Chemistry', grade: '10th', subject: 'Science', totalLectures: 22, totalHours: '44 Hours' },
-  { id: '10-bio', title: 'High School Biology', grade: '10th', subject: 'Science', totalLectures: 18, totalHours: '36 Hours' },
-  { id: '10-eng', title: 'High School English', grade: '10th', subject: 'Languages', totalLectures: 16, totalHours: '32 Hours' },
-  { id: '10-urdu', title: 'High School Urdu', grade: '10th', subject: 'Languages', totalLectures: 15, totalHours: '30 Hours' },
+  { id: '10-eng', title: 'English', grade: '10th', subject: 'Languages', totalLectures: 16, totalHours: '32 Hours' },
+  { id: '10-urdu', title: 'Urdu', grade: '10th', subject: 'Languages', totalLectures: 15, totalHours: '30 Hours' },
+  { id: '10-pst', title: 'Pakistan Studies', grade: '10th', subject: 'Social Studies', totalLectures: 14, totalHours: '28 Hours' },
+  { id: '10-math', title: 'Mathematics', grade: '10th', subject: 'Mathematics', totalLectures: 24, totalHours: '48 Hours' },
+  { id: '10-phy', title: 'Physics', grade: '10th', subject: 'Science', totalLectures: 20, totalHours: '40 Hours' },
+  { id: '10-chem', title: 'Chemistry', grade: '10th', subject: 'Science', totalLectures: 22, totalHours: '44 Hours' },
+  { id: '10-bio', title: 'Biology', grade: '10th', subject: 'Science', totalLectures: 18, totalHours: '36 Hours' },
+  { id: '10-cs', title: 'Computer Science', grade: '10th', subject: 'Computer', totalLectures: 20, totalHours: '40 Hours' },
 
   // --- GRADE 11 ---
+  { id: '11-eng', title: 'English', grade: '11th', subject: 'Languages', totalLectures: 18, totalHours: '36 Hours' },
+  { id: '11-urdu', title: 'Urdu', grade: '11th', subject: 'Languages', totalLectures: 16, totalHours: '32 Hours' },
+  { id: '11-math', title: 'Mathematics', grade: '11th', subject: 'Mathematics', totalLectures: 28, totalHours: '56 Hours' },
+  { id: '11-phy', title: 'Physics', grade: '11th', subject: 'Science', totalLectures: 25, totalHours: '50 Hours' },
+  { id: '11-chem', title: 'Chemistry', grade: '11th', subject: 'Science', totalLectures: 26, totalHours: '52 Hours' },
   { id: '11-acc', title: 'Principles of Accounting', grade: '11th', subject: 'Commerce', totalLectures: 30, totalHours: '60 Hours' },
-  { id: '11-math', title: 'First Year Mathematics', grade: '11th', subject: 'Math', totalLectures: 28, totalHours: '56 Hours' },
-  { id: '11-econ', title: 'First Year Economics', grade: '11th', subject: 'Commerce', totalLectures: 20, totalHours: '40 Hours' },
+  { id: '11-econ', title: 'Economics', grade: '11th', subject: 'Commerce', totalLectures: 20, totalHours: '40 Hours' },
+
+  // --- GRADE 12 ---
+  { id: '12-eng', title: 'English', grade: '12th', subject: 'Languages', totalLectures: 18, totalHours: '36 Hours' },
+  { id: '12-math', title: 'Mathematics', grade: '12th', subject: 'Mathematics', totalLectures: 30, totalHours: '60 Hours' },
+  { id: '12-phy', title: 'Physics', grade: '12th', subject: 'Science', totalLectures: 25, totalHours: '50 Hours' },
+  { id: '12-chem', title: 'Chemistry', grade: '12th', subject: 'Science', totalLectures: 26, totalHours: '52 Hours' },
+  { id: '12-acc', title: 'Principles of Accounting', grade: '12th', subject: 'Commerce', totalLectures: 32, totalHours: '64 Hours' },
+  { id: '12-econ', title: 'Economics', grade: '12th', subject: 'Commerce', totalLectures: 22, totalHours: '44 Hours' },
 ];
+
+const monthsList = ['January 2026', 'February 2026', 'March 2026', 'April 2026', 'May 2026', 'June 2026'];
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -58,9 +94,12 @@ export default function App() {
   const [courses] = useState(initialCourses);
   const [usersList, setUsersList] = useState(initialUsers);
   const [selectedCourse, setSelectedCourse] = useState(null);
-  const [activeVideo, setActiveVideo] = useState(null);
 
-  // New Student Onboarding Form State
+  // Slicers / Dropdowns for Admin Dashboard Status
+  const [selectedGradeFilter, setSelectedGradeFilter] = useState('10th');
+  const [selectedMonth, setSelectedMonth] = useState('March 2026');
+
+  // New Student Form State
   const [newName, setNewName] = useState('');
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -68,7 +107,6 @@ export default function App() {
   const [newSelectedSubjects, setNewSelectedSubjects] = useState([]);
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Login handler
   const handleLogin = (e) => {
     e.preventDefault();
     const foundUser = usersList.find(u => u.username === usernameInput.trim() && u.password === passwordInput.trim());
@@ -91,10 +129,24 @@ export default function App() {
   const handleLogout = () => {
     setCurrentUser(null);
     setSelectedCourse(null);
-    setActiveVideo(null);
   };
 
-  // Admin: Create New Student with Credentials & Custom Subjects
+  const toggleStudentMonthFee = (username, month) => {
+    setUsersList(usersList.map(u => {
+      if (u.username === username) {
+        const records = { ...(u.feeRecords || {}) };
+        const currentRec = records[month] || { status: 'Pending', date: '-' };
+        const newStatus = currentRec.status === 'Paid' ? 'Pending' : 'Paid';
+        records[month] = {
+          status: newStatus,
+          date: newStatus === 'Paid' ? new Date().toISOString().split('T')[0] : '-'
+        };
+        return { ...u, feeRecords: records };
+      }
+      return u;
+    }));
+  };
+
   const handleCreateStudent = (e) => {
     e.preventDefault();
     if (!newName || !newUsername || !newPassword) return;
@@ -107,7 +159,12 @@ export default function App() {
       name: newName.trim(),
       active: true,
       assignedSubjects: newSelectedSubjects,
-      feeStatus: 'Pending',
+      standardFee: 2500,
+      feeRecords: {
+        'January 2026': { status: 'Pending', date: '-' },
+        'February 2026': { status: 'Pending', date: '-' },
+        'March 2026': { status: 'Pending', date: '-' }
+      },
       progress: {}
     };
 
@@ -116,11 +173,10 @@ export default function App() {
     setNewUsername('');
     setNewPassword('');
     setNewSelectedSubjects([]);
-    setSuccessMsg(`نیا اسٹوڈنٹ کامیابی کے ساتھ رجسٹر ہو گیا ہے! Credentials: ${newUsername} / ${newPassword}`);
-    setTimeout(() => setSuccessMsg(''), 6000);
+    setSuccessMsg('اسٹوڈنٹ کامیابی سے رجسٹر ہو گیا!');
+    setTimeout(() => setSuccessMsg(''), 5000);
   };
 
-  // Admin: Toggle Subject Access for existing student
   const toggleStudentSubject = (username, courseId) => {
     setUsersList(usersList.map(u => {
       if (u.username === username) {
@@ -135,27 +191,16 @@ export default function App() {
     }));
   };
 
-  // Admin Fee Toggle Action
-  const toggleFeeStatus = (username) => {
-    setUsersList(usersList.map(u => {
-      if (u.username === username) {
-        const newStatus = u.feeStatus === 'Paid' ? 'Pending' : 'Paid';
-        return { ...u, feeStatus: newStatus };
-      }
-      return u;
-    }));
-  };
-
-  // Excel CSV Export for Admin
   const exportToExcel = () => {
-    let csvContent = "data:text/csv;charset=utf-8,Name,Username,Grade,Fee Status,Assigned Subjects\n";
+    let csvContent = "data:text/csv;charset=utf-8,Name,Username,Grade,Month,Fee Status,Amount\n";
     usersList.filter(u => u.role === 'student').forEach(s => {
-      csvContent += `${s.name},${s.username},${s.grade},${s.feeStatus},"${(s.assignedSubjects || []).join(';')}"\n`;
+      const rec = (s.feeRecords || {})[selectedMonth] || { status: 'Pending' };
+      csvContent += `${s.name},${s.username},${s.grade},${selectedMonth},${rec.status},2500\n`;
     });
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "EMZ_Academy_Students_Report.csv");
+    link.setAttribute("download", `EMZ_Academy_Fee_Report_${selectedMonth.replace(' ', '_')}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -190,7 +235,7 @@ export default function App() {
                 type="text" 
                 value={usernameInput}
                 onChange={(e) => setUsernameInput(e.target.value)}
-                placeholder="Username (e.g. admin or student10)"
+                placeholder="Username (admin or student10)"
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 text-sm focus:outline-none focus:border-cyan-500"
                 required 
               />
@@ -217,13 +262,15 @@ export default function App() {
     );
   }
 
-  // Student Course Filtering based on Admin Assigned Subjects
-  const displayedCourses = currentUser.role === 'admin'
-    ? courses 
-    : courses.filter(c => c.grade === currentUser.grade && (currentUser.assignedSubjects || []).includes(c.id));
-
   const studentUsers = usersList.filter(u => u.role === 'student');
   const gradeFilteredCourses = courses.filter(c => c.grade === newGrade);
+
+  // For students, filter by their assigned subjects. For admin, filter by the selected grade slicer.
+  const displayedCourses = currentUser.role === 'admin'
+    ? courses.filter(c => c.grade === selectedGradeFilter)
+    : courses.filter(c => c.grade === currentUser.grade && (currentUser.assignedSubjects || []).includes(c.id));
+
+  const totalUploadedLecturesCount = courses.reduce((acc, curr) => acc + curr.totalLectures, 0);
 
   // --- 2. AFTER LOGIN INTERFACE ---
   return (
@@ -287,7 +334,7 @@ export default function App() {
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold transition-all ${activeTab === 'admin_students' ? 'bg-cyan-500 text-white shadow-md' : 'hover:bg-white/5 text-slate-300'}`}
             >
               <Users className="w-4 h-4" />
-              <span>Student Management & Access</span>
+              <span>Student Management</span>
             </button>
           )}
         </aside>
@@ -298,28 +345,21 @@ export default function App() {
           {selectedCourse ? (
             <div>
               <button 
-                onClick={() => { setSelectedCourse(null); setActiveVideo(null); }}
+                onClick={() => { setSelectedCourse(null); }}
                 className="text-cyan-600 text-xs font-semibold mb-6 flex items-center space-x-1 bg-cyan-50 px-3 py-1.5 rounded-lg border border-cyan-200"
               >
                 ← Back to Dashboard
               </button>
 
-              <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-6 shadow-sm">
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                 <span className="text-xs font-bold uppercase tracking-wider bg-cyan-50 text-cyan-600 px-3 py-1 rounded-full border border-cyan-200">
                   Grade {selectedCourse.grade} • {selectedCourse.subject}
                 </span>
                 <h2 className="text-2xl font-black text-slate-800 mt-3">{selectedCourse.title}</h2>
-              </div>
-
-              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center space-x-2">
-                  <Video className="w-4 h-4 text-cyan-500" />
-                  <span>Google Drive / Video Lectures</span>
-                </h3>
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-bold text-slate-800">Lecture 1 & Study Material Access</p>
-                    <p className="text-[10px] text-slate-500">Zero-cost secure hosting integration</p>
+                    <p className="text-xs font-bold text-slate-800">Google Drive Secure Material & Lecture Link</p>
+                    <p className="text-[10px] text-slate-500">Zero-cost hosting integration</p>
                   </div>
                   <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" className="bg-cyan-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm">
                     Open Material
@@ -332,38 +372,88 @@ export default function App() {
               {/* --- DASHBOARD --- */}
               {activeTab === 'dashboard' && (
                 <div className="space-y-6">
-                  <h1 className="text-2xl font-black text-slate-800">Dashboard & Subject Coverage</h1>
-                  <p className="text-xs text-slate-500">Your assigned subjects and lecture completion progress:</p>
+                  {/* Top Summary Cards for Admin */}
+                  {currentUser.role === 'admin' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-bold uppercase text-slate-400">Total Enrolled Students</p>
+                          <p className="text-3xl font-black text-slate-800 mt-1">{studentUsers.length}</p>
+                        </div>
+                        <div className="p-3 bg-cyan-50 text-cyan-600 rounded-xl">
+                          <Users className="w-6 h-6" />
+                        </div>
+                      </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {displayedCourses.map((course) => {
-                      return (
-                        <div 
-                          key={course.id}
-                          onClick={() => { setSelectedCourse(course); }}
-                          className="bg-white border border-slate-200 hover:border-cyan-400 rounded-2xl p-6 cursor-pointer transition-all shadow-sm hover:shadow-md flex flex-col justify-between"
-                        >
-                          <div>
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center space-x-3">
-                                <div className="p-2.5 bg-cyan-50 text-cyan-600 rounded-xl">
-                                  <BookOpen className="w-5 h-5" />
-                                </div>
-                                <div>
-                                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Grade {course.grade}</span>
-                                  <h3 className="text-base font-bold text-slate-800">{course.title}</h3>
-                                </div>
+                      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-bold uppercase text-slate-400">Total Lectures Uploaded</p>
+                          <p className="text-3xl font-black text-slate-800 mt-1">{totalUploadedLecturesCount}+</p>
+                        </div>
+                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                          <Video className="w-6 h-6" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+                      <div>
+                        <h1 className="text-xl font-black text-slate-800">Subjects & Lecture Upload Status</h1>
+                        <p className="text-xs text-slate-500 mt-0.5">Review grade-wise curriculum modules, total lectures, and hours.</p>
+                      </div>
+
+                      {/* Grade Slicer / Dropdown for Admin */}
+                      {currentUser.role === 'admin' && (
+                        <div className="flex items-center space-x-2">
+                          <label className="text-xs font-bold text-slate-600">Select Grade:</label>
+                          <select 
+                            value={selectedGradeFilter}
+                            onChange={(e) => setSelectedGradeFilter(e.target.value)}
+                            className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-cyan-500"
+                          >
+                            <option value="9th">Grade 9th</option>
+                            <option value="10th">Grade 10th</option>
+                            <option value="11th">Grade 11th</option>
+                            <option value="12th">Grade 12th</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Subject Cards Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {displayedCourses.map((course) => {
+                        return (
+                          <div 
+                            key={course.id}
+                            onClick={() => { setSelectedCourse(course); }}
+                            className="bg-slate-50 border border-slate-200 hover:border-cyan-400 rounded-2xl p-5 cursor-pointer transition-all shadow-sm hover:shadow-md flex flex-col justify-between"
+                          >
+                            <div>
+                              <div className="flex items-center justify-between mb-3">
+                                <span className="text-[10px] font-bold uppercase tracking-wider bg-cyan-100 text-cyan-700 px-2.5 py-0.5 rounded-full">
+                                  Grade {course.grade}
+                                </span>
+                                <span className="text-[10px] text-slate-400 font-semibold">{course.subject}</span>
+                              </div>
+
+                              <h3 className="text-base font-bold text-slate-800 mb-3">{course.title}</h3>
+
+                              <div className="space-y-1 text-xs text-slate-600 mb-4 bg-white p-3 rounded-xl border border-slate-100">
+                                <div className="flex justify-between"><span>Total Lectures:</span> <strong className="text-slate-800">{course.totalLectures} Lectures</strong></div>
+                                <div className="flex justify-between"><span>Course Duration:</span> <strong className="text-slate-800">{course.totalHours}</strong></div>
                               </div>
                             </div>
 
-                            <div className="space-y-1.5 text-xs text-slate-600 mb-4">
-                              <div className="flex justify-between"><span>Total Lectures:</span> <strong className="text-slate-800">{course.totalLectures} Lectures</strong></div>
-                              <div className="flex justify-between"><span>Duration:</span> <strong className="text-slate-800">{course.totalHours}</strong></div>
+                            <div className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider flex items-center space-x-1">
+                              <span>View Content & Materials →</span>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
@@ -378,9 +468,161 @@ export default function App() {
 
               {/* --- FEES --- */}
               {activeTab === 'fees' && (
-                <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
-                  <h3 className="text-xl font-bold text-slate-800">Fee Vouchers & Payment Receipts</h3>
-                  <p className="text-xs text-slate-600">Review your payment status and download official academy receipts.</p>
+                <div className="space-y-6">
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+                      <div>
+                        <h3 className="text-xl font-bold text-slate-800">Fee Vouchers & Payment Receipts</h3>
+                        <p className="text-xs text-slate-500 mt-0.5">EMZ Academy official fee records and monthly receipts.</p>
+                      </div>
+
+                      {/* Month Slicer */}
+                      <div className="flex items-center space-x-2">
+                        <label className="text-xs font-bold text-slate-600">Select Month:</label>
+                        <select 
+                          value={selectedMonth}
+                          onChange={(e) => setSelectedMonth(e.target.value)}
+                          className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-cyan-500"
+                        >
+                          {monthsList.map(m => (
+                            <option key={m} value={m}>{m}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* If Student View */}
+                    {currentUser.role === 'student' && (() => {
+                      const rec = (currentUser.feeRecords || {})[selectedMonth] || { status: 'Pending', date: '-' };
+                      const isPaid = rec.status === 'Paid';
+                      return (
+                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-6">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-4">
+                            <div>
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-full border border-cyan-200">
+                                EMZ Academy Official Fee Voucher
+                              </span>
+                              <h4 className="text-lg font-black text-slate-800 mt-2">Monthly Tuition Fee - {selectedMonth}</h4>
+                              <p className="text-xs text-slate-500 mt-1">Standard Fee Amount: <strong className="text-slate-800">Rs. 2,500</strong></p>
+                            </div>
+                            <div className="text-right">
+                              <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${isPaid ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}`}>
+                                Status: {rec.status}
+                              </span>
+                              <p className="text-[10px] text-slate-400 mt-1">Last Payment Date: {rec.date}</p>
+                            </div>
+                          </div>
+
+                          {/* Printable / Downloadable Voucher Box with EMZ Academy Logo */}
+                          <div className="bg-white border-2 border-dashed border-slate-300 rounded-2xl p-6 space-y-4 shadow-sm">
+                            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                              <div className="flex items-baseline font-black tracking-tighter text-2xl">
+                                <span style={{ color: '#0d235c' }}>em</span>
+                                <span style={{ color: '#00b4d8' }}>z</span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 ml-0.5 mb-1"></span>
+                                <span className="text-[10px] uppercase tracking-widest border-l border-slate-200 ml-2 pl-2" style={{ color: '#00b4d8' }}>Academy</span>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs font-bold text-slate-800">Fee Receipt / Voucher</p>
+                                <p className="text-[10px] text-slate-400">Billing Cycle: {selectedMonth}</p>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 text-xs">
+                              <div>
+                                <p className="text-slate-400">Student Name:</p>
+                                <p className="font-bold text-slate-800">{currentUser.name}</p>
+                              </div>
+                              <div>
+                                <p className="text-slate-400">Grade Level:</p>
+                                <p className="font-bold text-slate-800">Grade {currentUser.grade}</p>
+                              </div>
+                              <div>
+                                <p className="text-slate-400">Standard Fee:</p>
+                                <p className="font-bold text-slate-800">Rs. 2,500</p>
+                              </div>
+                              <div>
+                                <p className="text-slate-400">Payment Status:</p>
+                                <p className={`font-bold ${isPaid ? 'text-emerald-600' : 'text-amber-600'}`}>{rec.status}</p>
+                              </div>
+                            </div>
+
+                            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                              <p className="text-[10px] text-slate-400">Verified by EMZ Academy Accounts Department</p>
+                              <button 
+                                onClick={() => alert(`Downloading EMZ Academy Fee Receipt for ${selectedMonth}...`)}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1 shadow-sm ${isPaid ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-slate-200 text-slate-600 cursor-not-allowed'}`}
+                                disabled={!isPaid}
+                              >
+                                <Download className="w-3.5 h-3.5" />
+                                <span>{isPaid ? 'Download Fee Receipt PDF' : 'Receipt Locked (Pending)'}</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* If Admin View */}
+                    {currentUser.role === 'admin' && (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                            Enrolled Students Fee Status for <span className="text-cyan-600">{selectedMonth}</span>
+                          </h4>
+                          <button 
+                            onClick={exportToExcel}
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg flex items-center space-x-1.5 shadow-sm"
+                          >
+                            <FileSpreadsheet className="w-3.5 h-3.5" />
+                            <span>Export Month Report</span>
+                          </button>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs text-slate-700">
+                            <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] border-b border-slate-200">
+                              <tr>
+                                <th className="p-3">Student Name</th>
+                                <th className="p-3">Grade</th>
+                                <th className="p-3">Standard Fee</th>
+                                <th className="p-3">Last Payment Date</th>
+                                <th className="p-3">Status ({selectedMonth})</th>
+                                <th className="p-3 text-right">Action / Toggle</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                              {studentUsers.map((stu) => {
+                                const rec = (stu.feeRecords || {})[selectedMonth] || { status: 'Pending', date: '-' };
+                                const isPaid = rec.status === 'Paid';
+                                return (
+                                  <tr key={stu.username} className="hover:bg-slate-50/50">
+                                    <td className="p-3 font-bold text-slate-800">{stu.name}</td>
+                                    <td className="p-3">Grade {stu.grade}</td>
+                                    <td className="p-3 font-mono font-bold text-slate-800">Rs. 2,500</td>
+                                    <td className="p-3 font-mono text-slate-500">{rec.date}</td>
+                                    <td className="p-3">
+                                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${isPaid ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}`}>
+                                        {rec.status}
+                                      </span>
+                                    </td>
+                                    <td className="p-3 text-right space-x-2">
+                                      <button 
+                                        onClick={() => toggleStudentMonthFee(stu.username, selectedMonth)}
+                                        className={`px-3 py-1 rounded text-xs font-bold ${isPaid ? 'bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200'}`}
+                                      >
+                                        {isPaid ? 'Mark Pending' : 'Mark Paid'}
+                                      </button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -388,19 +630,8 @@ export default function App() {
               {activeTab === 'admin_students' && currentUser.role === 'admin' && (
                 <div className="space-y-6">
                   <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-800">New Student Onboard & Credential Generator</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">Register new students, give them username/password, and select initial subject permissions.</p>
-                      </div>
-                      <button 
-                        onClick={exportToExcel}
-                        className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center space-x-2 transition-all shadow-md w-max"
-                      >
-                        <FileSpreadsheet className="w-4 h-4" />
-                        <span>Export Excel Report</span>
-                      </button>
-                    </div>
+                    <h3 className="text-xl font-bold text-slate-800">New Student Onboard & Credential Generator</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Register new students, give them username/password, and select initial subject permissions.</p>
 
                     {successMsg && (
                       <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs p-3 rounded-xl">
@@ -408,7 +639,6 @@ export default function App() {
                       </div>
                     )}
 
-                    {/* Registration Form */}
                     <form onSubmit={handleCreateStudent} className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div>
@@ -417,7 +647,7 @@ export default function App() {
                             type="text" 
                             value={newName} 
                             onChange={(e) => setNewName(e.target.value)} 
-                            placeholder="e.g. Ali Khan" 
+                            placeholder="e.g. Sara Khan" 
                             className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500" 
                             required 
                           />
@@ -428,7 +658,7 @@ export default function App() {
                             type="text" 
                             value={newUsername} 
                             onChange={(e) => setNewUsername(e.target.value)} 
-                            placeholder="e.g. student10_ali" 
+                            placeholder="e.g. student10_sara" 
                             className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500" 
                             required 
                           />
@@ -454,15 +684,16 @@ export default function App() {
                             }} 
                             className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500"
                           >
+                            <option value="9th">Grade 9th</option>
                             <option value="10th">Grade 10th</option>
                             <option value="11th">Grade 11th</option>
+                            <option value="12th">Grade 12th</option>
                           </select>
                         </div>
                       </div>
 
-                      {/* Select Subjects checkboxes */}
                       <div>
-                        <label className="block text-xs font-bold text-cyan-600 mb-2">Select Subjects to Grant Access (e.g. 3 out of total subjects):</label>
+                        <label className="block text-xs font-bold text-cyan-600 mb-2">Select Subjects to Grant Access:</label>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 bg-white p-3 rounded-xl border border-slate-200">
                           {gradeFilteredCourses.map(c => {
                             const isChecked = newSelectedSubjects.includes(c.id);
@@ -496,9 +727,8 @@ export default function App() {
                     </form>
                   </div>
 
-                  {/* Existing Students List with Progress & Subject Access Toggles */}
                   <div className="space-y-4">
-                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Enrolled Students, Progress Reports & Access Control</h4>
+                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Enrolled Students & Subject Permissions</h4>
                     
                     {studentUsers.map((stu) => {
                       const studentGradeCourses = courses.filter(c => c.grade === stu.grade);
@@ -512,38 +742,9 @@ export default function App() {
                                 <span className="text-xs text-slate-500">Grade {stu.grade}</span>
                               </div>
                             </div>
-                            <div className="flex items-center space-x-3">
-                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${stu.feeStatus === 'Paid' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}`}>
-                                Fee: {stu.feeStatus || 'Paid'}
-                              </span>
-                              <button 
-                                onClick={() => toggleFeeStatus(stu.username)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${stu.feeStatus === 'Paid' ? 'bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200'}`}
-                              >
-                                {stu.feeStatus === 'Paid' ? 'Mark Pending' : 'Mark Paid'}
-                              </button>
-                            </div>
+                            <span className="text-xs font-bold text-slate-600">Standard Fee: Rs. 2,500</span>
                           </div>
 
-                          {/* Student Subject-wise Progress Report */}
-                          <div>
-                            <p className="text-xs font-bold text-slate-700 mb-1.5">Subject-wise Progress Report (Lectures Taken):</p>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                              {studentGradeCourses.map(course => {
-                                const hasAccess = (stu.assignedSubjects || []).includes(course.id);
-                                const lecturesTaken = (stu.progress || {})[course.id] || 0;
-                                if (!hasAccess) return null;
-                                return (
-                                  <div key={course.id} className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                                    <p className="font-bold text-slate-800 truncate">{course.title.replace('High School ', '')}</p>
-                                    <p className="text-cyan-600 font-semibold mt-1">{lecturesTaken} / {course.totalLectures} Lectures</p>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          {/* Granular Subject Access Grant / Revoke Checkboxes */}
                           <div>
                             <p className="text-xs font-semibold text-slate-600 mb-2">Modify Subject Access (Check to Grant, Uncheck to Revoke):</p>
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
@@ -557,7 +758,7 @@ export default function App() {
                                       onChange={() => toggleStudentSubject(stu.username, course.id)}
                                       className="rounded border-slate-300 text-cyan-500 focus:ring-0"
                                     />
-                                    <span className="truncate font-medium">{course.title.replace('High School ', '').replace('First Year ', '')}</span>
+                                    <span className="truncate font-medium">{course.title}</span>
                                   </label>
                                 );
                               })}
