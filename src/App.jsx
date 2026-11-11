@@ -168,7 +168,12 @@ export default function App() {
         'February 2026': { status: 'Pending', date: '-', feeAmount: 2500 },
         'March 2026': { status: 'Pending', date: '-', feeAmount: 2500 }
       },
-      progress: {}
+      attendance: {
+  attended: 0,
+  total: 0
+},
+
+progress: {}
     };
 
     setUsersList([...usersList, newStudent]);
