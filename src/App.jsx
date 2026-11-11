@@ -60,7 +60,16 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const [courses] = useState(initialCourses);
-  const [usersList, setUsersList] = useState(initialUsers);
+  const [usersList, setUsersList] = useState(() => {
+
+  const savedUsers =
+    localStorage.getItem("emzUsers");
+
+  return savedUsers
+    ? JSON.parse(savedUsers)
+    : initialUsers;
+
+});
   const [selectedCourse, setSelectedCourse] = useState(null);
 
   // Month Slicer State
