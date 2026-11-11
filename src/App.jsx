@@ -73,6 +73,15 @@ export default function App() {
     : initialUsers;
 
 });
+ 
+  useEffect(() => {
+
+  localStorage.setItem(
+    "emzUsers",
+    JSON.stringify(usersList)
+  );
+
+}, [usersList]);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
   // Month Slicer State
