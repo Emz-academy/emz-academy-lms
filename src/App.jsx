@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  BookOpen, Video, FileText, CheckCircle, Clock, 
-  Users, LogOut, Award, Play, Download, Plus, Key, 
-  LayoutDashboard, DollarSign, BarChart3, CheckSquare, HelpCircle, FileSpreadsheet, Printer, TrendingUp, Calendar
+  BookOpen, Video, Users, LogOut, Download, 
+  LayoutDashboard, DollarSign, BarChart3, CheckSquare, FileSpreadsheet, TrendingUp, Calendar, Clock
 } from 'lucide-react';
 
-// Mock Users Database with Study Hours and Progress Tracking
+// Mock Users Database with Detailed Visual Graph Data (Daily, Weekly, Monthly)
 const initialUsers = [
   { username: 'admin', password: 'admin123', role: 'admin', name: 'EMZ Academy Admin', active: true },
   { 
@@ -18,13 +17,37 @@ const initialUsers = [
     attendance: { attended: 15, total: 20 },
     assignedSubjects: ['10-math', '10-phy', '10-eng'], 
     standardFee: 2500,
-    studyHours: { daily: 3.5, weekly: 21.0, monthly: 85.5 }, // Study hours tracking
+    studyHours: { daily: 3.5, weekly: 21.0, monthly: 85.5 },
+    // Detailed breakdown for visual bar charts
+    studyStats: {
+      dailyLog: [
+        { label: 'Mon', hours: 3.0 },
+        { label: 'Tue', hours: 4.5 },
+        { label: 'Wed', hours: 2.5 },
+        { label: 'Thu', hours: 4.0 },
+        { label: 'Fri', hours: 3.5 },
+        { label: 'Sat', hours: 2.0 },
+        { label: 'Sun', hours: 1.5 },
+      ],
+      weeklyLog: [
+        { label: 'Week 1', hours: 18 },
+        { label: 'Week 2', hours: 22 },
+        { label: 'Week 3', hours: 24.5 },
+        { label: 'Week 4', hours: 21 },
+      ],
+      monthlyLog: [
+        { label: 'Jan', hours: 78 },
+        { label: 'Feb', hours: 82 },
+        { label: 'Mar', hours: 85.5 },
+        { label: 'Apr', hours: 90 },
+      ]
+    },
     feeRecords: {
       'January 2026': { status: 'Paid', date: '2026-01-05', feeAmount: 2500 },
       'February 2026': { status: 'Paid', date: '2026-02-04', feeAmount: 2500 },
       'March 2026': { status: 'Pending', date: '-', feeAmount: 2500 }
     },
-    progress: { '10-math': 85, '10-phy': 60, '10-eng': 90 } // Progress percentages
+    progress: { '10-math': 85, '10-phy': 60, '10-eng': 90 }
   },
   { 
     username: 'student11', 
@@ -37,6 +60,29 @@ const initialUsers = [
     assignedSubjects: ['11-acc', '11-math'], 
     standardFee: 2500,
     studyHours: { daily: 2.8, weekly: 16.4, monthly: 68.0 },
+    studyStats: {
+      dailyLog: [
+        { label: 'Mon', hours: 2.0 },
+        { label: 'Tue', hours: 3.0 },
+        { label: 'Wed', hours: 2.5 },
+        { label: 'Thu', hours: 3.5 },
+        { label: 'Fri', hours: 2.8 },
+        { label: 'Sat', hours: 1.6 },
+        { label: 'Sun', hours: 1.0 },
+      ],
+      weeklyLog: [
+        { label: 'Week 1', hours: 14 },
+        { label: 'Week 2', hours: 17 },
+        { label: 'Week 3', hours: 20.6 },
+        { label: 'Week 4', hours: 16.4 },
+      ],
+      monthlyLog: [
+        { label: 'Jan', hours: 60 },
+        { label: 'Feb', hours: 64 },
+        { label: 'Mar', hours: 68 },
+        { label: 'Apr', hours: 72 },
+      ]
+    },
     feeRecords: {
       'January 2026': { status: 'Paid', date: '2026-01-10', feeAmount: 2500 },
       'February 2026': { status: 'Pending', date: '-', feeAmount: 2500 },
@@ -46,7 +92,7 @@ const initialUsers = [
   },
 ];
 
-// Verified Curriculum Database
+// Verified Curriculum Database (Grades 9 to 12)
 const initialCourses = [
   // --- CLASS 9 ---
   { id: '9-eng', title: 'English', grade: '9th', subject: 'Languages', totalLectures: 16, totalHours: '32 Hours' },
@@ -103,6 +149,43 @@ const initialCourses = [
 
 const monthsList = ['January 2026', 'February 2026', 'March 2026', 'April 2026', 'May 2026', 'June 2026'];
 
+// Reusable Vertical Bar Graph Component
+function VerticalBarChart({ title, subtitle, data, maxVal, barColorClass, unit = 'h' }) {
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+      <div>
+        <h4 className="text-sm font-black text-slate-800">{title}</h4>
+        <p className="text-[11px] text-slate-500 mt-0.5">{subtitle}</p>
+      </div>
+
+      <div className="mt-6 flex items-end justify-between space-x-2 h-40 pt-4 border-b border-slate-100 pb-2 px-1">
+        {data.map((item, idx) => {
+          const heightPercent = Math.min(100, Math.round((item.hours / maxVal) * 100));
+          return (
+            <div key={idx} className="flex-1 flex flex-col items-center group h-full justify-end">
+              {/* Value Label above bar */}
+              <span className="text-[10px] font-bold text-slate-600 mb-1.5 group-hover:scale-110 transition-transform">
+                {item.hours}{unit}
+              </span>
+              
+              {/* Vertical Bar */}
+              <div className="w-full max-w-[32px] bg-slate-100 rounded-t-lg h-28 flex items-end overflow-hidden border border-slate-200/60">
+                <div 
+                  className={`w-full rounded-t-lg transition-all duration-700 ${barColorClass}`}
+                  style={{ height: `${heightPercent}%` }}
+                ></div>
+              </div>
+              
+              {/* X-Axis Label */}
+              <span className="text-[10px] font-semibold text-slate-500 mt-2">{item.label}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [usernameInput, setUsernameInput] = useState('');
@@ -127,6 +210,7 @@ export default function App() {
   // Slicer States
   const [selectedGradeFilter, setSelectedGradeFilter] = useState('9th');
   const [selectedMonth, setSelectedMonth] = useState('March 2026');
+  const [selectedAdminStudentView, setSelectedAdminStudentView] = useState('student10');
 
   // New Student Form State
   const [newName, setNewName] = useState('');
@@ -191,7 +275,30 @@ export default function App() {
       active: true,
       assignedSubjects: newSelectedSubjects,
       standardFee: 2500,
-      studyHours: { daily: 1.5, weekly: 10.0, monthly: 45.0 },
+      studyHours: { daily: 2.0, weekly: 14.0, monthly: 56.0 },
+      studyStats: {
+        dailyLog: [
+          { label: 'Mon', hours: 2.0 },
+          { label: 'Tue', hours: 2.5 },
+          { label: 'Wed', hours: 1.5 },
+          { label: 'Thu', hours: 3.0 },
+          { label: 'Fri', hours: 2.0 },
+          { label: 'Sat', hours: 1.5 },
+          { label: 'Sun', hours: 1.5 },
+        ],
+        weeklyLog: [
+          { label: 'Week 1', hours: 12 },
+          { label: 'Week 2', hours: 15 },
+          { label: 'Week 3', hours: 14 },
+          { label: 'Week 4', hours: 15 },
+        ],
+        monthlyLog: [
+          { label: 'Jan', hours: 48 },
+          { label: 'Feb', hours: 52 },
+          { label: 'Mar', hours: 56 },
+          { label: 'Apr', hours: 60 },
+        ]
+      },
       feeRecords: {
         'January 2026': { status: 'Pending', date: '-', feeAmount: 2500 },
         'February 2026': { status: 'Pending', date: '-', feeAmount: 2500 },
@@ -313,6 +420,31 @@ export default function App() {
   const gradeFilteredCourses = courses.filter(c => c.grade === newGrade);
   const totalUploadedLecturesCount = courses.reduce((acc, curr) => acc + curr.totalLectures, 0);
 
+  // Default fallback stats for graphs if a student object lacks custom array
+  const defaultStats = {
+    dailyLog: [
+      { label: 'Mon', hours: 2.5 },
+      { label: 'Tue', hours: 3.0 },
+      { label: 'Wed', hours: 2.0 },
+      { label: 'Thu', hours: 3.5 },
+      { label: 'Fri', hours: 2.5 },
+      { label: 'Sat', hours: 1.5 },
+      { label: 'Sun', hours: 1.0 },
+    ],
+    weeklyLog: [
+      { label: 'Week 1', hours: 14 },
+      { label: 'Week 2', hours: 18 },
+      { label: 'Week 3', hours: 16 },
+      { label: 'Week 4', hours: 20 },
+    ],
+    monthlyLog: [
+      { label: 'Jan', hours: 60 },
+      { label: 'Feb', hours: 68 },
+      { label: 'Mar', hours: 74 },
+      { label: 'Apr', hours: 80 },
+    ]
+  };
+
   // --- 2. AFTER LOGIN INTERFACE ---
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col font-sans">
@@ -350,7 +482,7 @@ export default function App() {
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold transition-all ${activeTab === 'dashboard' && !selectedCourse ? 'bg-cyan-500 text-white shadow-md' : 'hover:bg-white/5 text-slate-300'}`}
           >
             <LayoutDashboard className="w-4 h-4" />
-            <span>Dashboard</span>
+            <span>Dashboard & Graphs</span>
           </button>
 
           <button 
@@ -413,105 +545,195 @@ export default function App() {
               {/* --- DASHBOARD --- */}
               {activeTab === 'dashboard' && (
                 <div className="space-y-6">
-                  {/* ADMIN STATS */}
+                  {/* ADMIN VIEW: TOP CARDS + STUDENT GRAPH SELECTOR */}
                   {activeUserRecord.role === 'admin' && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
-                        <div>
-                          <p className="text-xs font-bold uppercase text-slate-400">Total Enrolled Students</p>
-                          <p className="text-3xl font-black text-slate-800 mt-1">{studentUsers.length}</p>
-                        </div>
-                        <div className="p-3 bg-cyan-50 text-cyan-600 rounded-xl">
-                          <Users className="w-6 h-6" />
-                        </div>
-                      </div>
-
-                      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
-                        <div>
-                          <p className="text-xs font-bold uppercase text-slate-400">Total Lectures Available</p>
-                          <p className="text-3xl font-black text-slate-800 mt-1">{totalUploadedLecturesCount}+</p>
-                        </div>
-                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-                          <Video className="w-6 h-6" />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* STUDENT STUDY HOURS & PROGRESS STATS CARDS */}
-                  {activeUserRecord.role === 'student' && (
                     <div className="space-y-6">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
                           <div>
-                            <p className="text-[11px] font-bold uppercase text-slate-400">Study Hours (Today)</p>
-                            <p className="text-2xl font-black text-cyan-600 mt-1">{(activeUserRecord.studyHours?.daily || 2.5)} Hours</p>
+                            <p className="text-xs font-bold uppercase text-slate-400">Total Enrolled Students</p>
+                            <p className="text-3xl font-black text-slate-800 mt-1">{studentUsers.length}</p>
                           </div>
                           <div className="p-3 bg-cyan-50 text-cyan-600 rounded-xl">
-                            <Clock className="w-6 h-6" />
+                            <Users className="w-6 h-6" />
                           </div>
                         </div>
 
                         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
                           <div>
-                            <p className="text-[11px] font-bold uppercase text-slate-400">Study Hours (This Week)</p>
-                            <p className="text-2xl font-black text-emerald-600 mt-1">{(activeUserRecord.studyHours?.weekly || 18.0)} Hours</p>
+                            <p className="text-xs font-bold uppercase text-slate-400">Total Lectures Available</p>
+                            <p className="text-3xl font-black text-slate-800 mt-1">{totalUploadedLecturesCount}+</p>
                           </div>
                           <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-                            <Calendar className="w-6 h-6" />
-                          </div>
-                        </div>
-
-                        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
-                          <div>
-                            <p className="text-[11px] font-bold uppercase text-slate-400">Study Hours (This Month)</p>
-                            <p className="text-2xl font-black text-indigo-600 mt-1">{(activeUserRecord.studyHours?.monthly || 72.0)} Hours</p>
-                          </div>
-                          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
-                            <TrendingUp className="w-6 h-6" />
+                            <Video className="w-6 h-6" />
                           </div>
                         </div>
                       </div>
 
-                      {/* Course Progress Visual Analytics Graph Section */}
-                      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-                        <h3 className="text-base font-black text-slate-800 flex items-center space-x-2">
-                          <BarChart3 className="w-5 h-5 text-cyan-600" />
-                          <span>Course Progress Analytics & Visual Graph</span>
-                        </h3>
-                        <p className="text-xs text-slate-500">Subject-wise mastery level and completion progress:</p>
+                      {/* Admin Student Performance Graph Inspector */}
+                      {studentUsers.length > 0 && (() => {
+                        const inspectedStu = studentUsers.find(s => s.username === selectedAdminStudentView) || studentUsers[0];
+                        const stuStats = inspectedStu.studyStats || defaultStats;
+                        const stuCourses = courses.filter(c => c.grade === inspectedStu.grade && (inspectedStu.assignedSubjects || []).includes(c.id));
 
-                        <div className="space-y-4 pt-2">
-                          {displayedCourses.map(course => {
-                            const progVal = (activeUserRecord.progress || {})[course.id] || Math.floor(Math.random() * 40) + 50;
-                            return (
-                              <div key={course.id} className="space-y-1">
-                                <div className="flex justify-between text-xs font-bold text-slate-700">
-                                  <span>{course.title}</span>
-                                  <span className="text-cyan-600">{progVal}% Completed</span>
-                                </div>
-                                <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden border border-slate-200">
-                                  <div 
-                                    className="bg-gradient-to-r from-cyan-500 to-cyan-600 h-full rounded-full transition-all duration-500" 
-                                    style={{ width: `${progVal}%` }}
-                                  ></div>
-                                </div>
+                        return (
+                          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                              <div>
+                                <h2 className="text-lg font-black text-slate-800 flex items-center space-x-2">
+                                  <BarChart3 className="w-5 h-5 text-cyan-600" />
+                                  <span>Student Performance & Study Graphs</span>
+                                </h2>
+                                <p className="text-xs text-slate-500">Inspect daily, weekly, and monthly study hour bar graphs for any student.</p>
                               </div>
-                            );
-                          })}
-                        </div>
-                      </div>
+                              <div className="flex items-center space-x-2">
+                                <label className="text-xs font-bold text-slate-600">Select Student:</label>
+                                <select 
+                                  value={inspectedStu.username}
+                                  onChange={(e) => setSelectedAdminStudentView(e.target.value)}
+                                  className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-cyan-500"
+                                >
+                                  {studentUsers.map(s => (
+                                    <option key={s.username} value={s.username}>{s.name} (Grade {s.grade})</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* 3 Bar Graphs Grid (Daily, Weekly, Monthly) */}
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                              <VerticalBarChart 
+                                title="Daily Study Graph (1 Day Breakdown)" 
+                                subtitle="Hours studied per day this week"
+                                data={stuStats.dailyLog} 
+                                maxVal={6} 
+                                barColorClass="bg-gradient-to-t from-cyan-600 to-cyan-400"
+                              />
+                              <VerticalBarChart 
+                                title="Weekly Study Graph (1 Week Breakdown)" 
+                                subtitle="Total study hours across 4 weeks"
+                                data={stuStats.weeklyLog} 
+                                maxVal={30} 
+                                barColorClass="bg-gradient-to-t from-emerald-600 to-emerald-400"
+                              />
+                              <VerticalBarChart 
+                                title="Monthly Study Graph (1 Month Breakdown)" 
+                                subtitle="Total study hours per month"
+                                data={stuStats.monthlyLog} 
+                                maxVal={100} 
+                                barColorClass="bg-gradient-to-t from-indigo-600 to-indigo-400"
+                              />
+                            </div>
+
+                            {/* Course Progress Graph for Inspected Student */}
+                            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+                              <h4 className="text-sm font-black text-slate-800">Course Completion Graph ({inspectedStu.name})</h4>
+                              {stuCourses.length === 0 ? (
+                                <p className="text-xs text-slate-400">No subjects enrolled yet.</p>
+                              ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {stuCourses.map(course => {
+                                    const progVal = (inspectedStu.progress || {})[course.id] || 65;
+                                    return (
+                                      <div key={course.id} className="space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                        <div className="flex justify-between text-xs font-bold text-slate-700">
+                                          <span>{course.title}</span>
+                                          <span className="text-cyan-600">{progVal}%</span>
+                                        </div>
+                                        <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                                          <div 
+                                            className="bg-gradient-to-r from-cyan-500 to-blue-600 h-full rounded-full transition-all duration-700" 
+                                            style={{ width: `${progVal}%` }}
+                                          ></div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
 
+                  {/* STUDENT VIEW: VISUAL BAR GRAPHS & COURSE PROGRESS */}
+                  {activeUserRecord.role === 'student' && (() => {
+                    const userStats = activeUserRecord.studyStats || defaultStats;
+
+                    return (
+                      <div className="space-y-6">
+                        {/* 3 Bar Graphs (1 Day, 1 Week, 1 Month) */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                          <VerticalBarChart 
+                            title="Daily Study Hours (1 Day)" 
+                            subtitle="Your day-by-day study time log"
+                            data={userStats.dailyLog} 
+                            maxVal={6} 
+                            barColorClass="bg-gradient-to-t from-cyan-600 to-cyan-400"
+                          />
+                          <VerticalBarChart 
+                            title="Weekly Study Hours (1 Week)" 
+                            subtitle="Your week-by-week study hours"
+                            data={userStats.weeklyLog} 
+                            maxVal={30} 
+                            barColorClass="bg-gradient-to-t from-emerald-600 to-emerald-400"
+                          />
+                          <VerticalBarChart 
+                            title="Monthly Study Hours (1 Month)" 
+                            subtitle="Your month-by-month total hours"
+                            data={userStats.monthlyLog} 
+                            maxVal={100} 
+                            barColorClass="bg-gradient-to-t from-indigo-600 to-indigo-400"
+                          />
+                        </div>
+
+                        {/* Course Progress Graph Section */}
+                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div>
+                              <h3 className="text-base font-black text-slate-800 flex items-center space-x-2">
+                                <BarChart3 className="w-5 h-5 text-cyan-600" />
+                                <span>Course Progress Bar Graph</span>
+                              </h3>
+                              <p className="text-xs text-slate-500 mt-0.5">Visual completion status of your enrolled subjects:</p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {displayedCourses.map(course => {
+                              const progVal = (activeUserRecord.progress || {})[course.id] || 65;
+                              return (
+                                <div key={course.id} className="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200/70">
+                                  <div className="flex justify-between items-center text-xs font-bold text-slate-700">
+                                    <span>{course.title}</span>
+                                    <span className="bg-cyan-100 text-cyan-700 px-2 py-0.5 rounded-full text-[11px]">{progVal}% Completed</span>
+                                  </div>
+                                  <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                                    <div 
+                                      className="bg-gradient-to-r from-cyan-500 to-indigo-600 h-full rounded-full transition-all duration-700" 
+                                      style={{ width: `${progVal}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* SUBJECTS LIST SECTION */}
                   <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
                       <div>
-                        <h1 className="text-xl font-black text-slate-800">Subjects & Lecture Upload Status</h1>
+                        <h1 className="text-xl font-black text-slate-800">Subjects & Lecture Modules</h1>
                         <p className="text-xs text-slate-500 mt-0.5">
                           {activeUserRecord.role === 'admin' 
                             ? 'Select a grade to inspect curriculum modules and subjects.' 
-                            : 'Your assigned subjects and course materials:'}
+                            : 'Click any subject to open video lectures and notes:'}
                         </p>
                       </div>
 
@@ -855,7 +1077,7 @@ export default function App() {
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Enrolled Students, Study Hours & Subject Permissions</h4>
+                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Enrolled Students & Subject Permissions</h4>
                     
                     {studentUsers.map((stu) => {
                       const studentGradeCourses = courses.filter(c => c.grade === stu.grade);
@@ -869,11 +1091,16 @@ export default function App() {
                                 <span className="text-xs text-slate-500">Grade {stu.grade}</span>
                               </div>
                             </div>
-                            <div className="text-xs text-slate-600 font-semibold space-x-3">
-                              <span>Daily: <strong>{stu.studyHours?.daily || 2.0}h</strong></span>
-                              <span>Weekly: <strong>{stu.studyHours?.weekly || 15.0}h</strong></span>
-                              <span>Monthly: <strong>{stu.studyHours?.monthly || 60.0}h</strong></span>
-                            </div>
+                            <button 
+                              onClick={() => {
+                                setSelectedAdminStudentView(stu.username);
+                                setActiveTab('dashboard');
+                              }}
+                              className="text-xs font-bold text-cyan-600 bg-cyan-50 hover:bg-cyan-100 px-3 py-1.5 rounded-lg border border-cyan-200 flex items-center space-x-1"
+                            >
+                              <BarChart3 className="w-3.5 h-3.5" />
+                              <span>View Performance Graphs</span>
+                            </button>
                           </div>
 
                           <div>
