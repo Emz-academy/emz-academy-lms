@@ -1,7 +1,4 @@
-import React, {
-  useState,
-  useEffect
-} from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, Video, FileText, CheckCircle, Clock, 
   Users, LogOut, Award, Play, Download, Plus, Key, 
@@ -18,12 +15,7 @@ const initialUsers = [
     grade: '10th', 
     name: 'Ayesha Malik', 
     active: true, 
-
-    attendance: {
-  attended: 15,
-  total: 20
-},
-    
+    attendance: { attended: 15, total: 20 },
     assignedSubjects: ['10-math', '10-phy', '10-eng'], 
     standardFee: 2500,
     feeRecords: {
@@ -40,12 +32,7 @@ const initialUsers = [
     grade: '11th', 
     name: 'Bilal Ahmed', 
     active: true,
-
-    attendance: {
-  attended: 15,
-  total: 20
-},
-    
+    attendance: { attended: 15, total: 20 },
     assignedSubjects: ['11-acc', '11-math'], 
     standardFee: 2500,
     feeRecords: {
@@ -75,25 +62,17 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const [courses] = useState(initialCourses);
+  
+  // LocalStorage integration to prevent data loss on refresh
   const [usersList, setUsersList] = useState(() => {
+    const savedUsers = localStorage.getItem("emzUsers");
+    return savedUsers ? JSON.parse(savedUsers) : initialUsers;
+  });
 
-  const savedUsers =
-    localStorage.getItem("emzUsers");
-
-  return savedUsers
-    ? JSON.parse(savedUsers)
-    : initialUsers;
-
-});
- 
   useEffect(() => {
+    localStorage.setItem("emzUsers", JSON.stringify(usersList));
+  }, [usersList]);
 
-  localStorage.setItem(
-    "emzUsers",
-    JSON.stringify(usersList)
-  );
-
-}, [usersList]);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
   // Month Slicer State
@@ -131,7 +110,7 @@ export default function App() {
     setSelectedCourse(null);
   };
 
-  // Toggle Fee status for a specific student and month (Captures exact date & 2500 fee amount)
+  // Toggle Fee status for a specific student and month
   const toggleStudentMonthFee = (username, month) => {
     const currentDateStr = new Date().toISOString().split('T')[0];
     setUsersList(usersList.map(u => {
@@ -168,12 +147,8 @@ export default function App() {
         'February 2026': { status: 'Pending', date: '-', feeAmount: 2500 },
         'March 2026': { status: 'Pending', date: '-', feeAmount: 2500 }
       },
-      attendance: {
-  attended: 0,
-  total: 0
-},
-
-progress: {}
+      attendance: { attended: 0, total: 0 },
+      progress: {}
     };
 
     setUsersList([...usersList, newStudent]);
@@ -214,7 +189,6 @@ progress: {}
     document.body.removeChild(link);
   };
 
-  // Helper to get titles of assigned subjects for a student
   const getStudentSubjectNames = (assignedIds) => {
     if (!assignedIds || assignedIds.length === 0) return 'No Subjects Enrolled';
     return courses
@@ -430,7 +404,7 @@ progress: {}
                 </div>
               )}
 
-              {/* --- FEE VOUCHERS (AUTOMATED DYNAMIC VOUCHER GENERATOR) --- */}
+              {/* --- FEE VOUCHERS --- */}
               {activeTab === 'fees' && (
                 <div className="space-y-6">
                   <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
@@ -440,7 +414,6 @@ progress: {}
                         <p className="text-xs text-slate-500 mt-0.5">EMZ Academy official fee records and monthly vouchers.</p>
                       </div>
 
-                      {/* Month Slicer Dropdown */}
                       <div className="flex items-center space-x-2">
                         <label className="text-xs font-bold text-slate-600">Select Month:</label>
                         <select 
@@ -455,7 +428,6 @@ progress: {}
                       </div>
                     </div>
 
-                    {/* --- STUDENT CREDENTIAL / LOGIN AREA FEE VOUCHER --- */}
                     {currentUser.role === 'student' && (() => {
                       const rec = (currentUser.feeRecords || {})[selectedMonth] || { status: 'Pending', date: '-', feeAmount: 2500 };
                       const isPaid = rec.status === 'Paid';
@@ -478,7 +450,6 @@ progress: {}
                             </div>
                           </div>
 
-                          {/* Dynamic PDF/Printable Voucher Layout matching requested particulars */}
                           <div className="bg-white border-2 border-dashed border-slate-300 rounded-2xl p-6 space-y-6 shadow-sm">
                             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                               <div className="flex items-baseline font-black tracking-tighter text-2xl">
@@ -493,7 +464,6 @@ progress: {}
                               </div>
                             </div>
 
-                            {/* Particulars Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                               <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
                                 <span className="text-[10px] text-slate-400 font-bold uppercase">a) Student Name</span>
@@ -547,7 +517,6 @@ progress: {}
                       );
                     })()}
 
-                    {/* --- ADMIN MODE: STUDENT FEE MANAGEMENT TABLE --- */}
                     {currentUser.role === 'admin' && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
@@ -671,10 +640,8 @@ progress: {}
                             }} 
                             className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500"
                           >
-                            <option value="9th">Grade 9th</option>
                             <option value="10th">Grade 10th</option>
                             <option value="11th">Grade 11th</option>
-                            <option value="12th">Grade 12th</option>
                           </select>
                         </div>
                       </div>
@@ -764,3 +731,4 @@ progress: {}
     </div>
   );
 }
+                              
