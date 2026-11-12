@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, Video, FileText, CheckCircle, Clock, 
   Users, LogOut, Award, Play, Download, Plus, Key, 
-  LayoutDashboard, DollarSign, BarChart3, CheckSquare, HelpCircle, FileSpreadsheet, Printer
+  LayoutDashboard, DollarSign, BarChart3, CheckSquare, HelpCircle, FileSpreadsheet, Printer, TrendingUp, Calendar
 } from 'lucide-react';
 
-// Mock Users Database with Dynamic Fee Voucher Records
+// Mock Users Database with Study Hours and Progress Tracking
 const initialUsers = [
   { username: 'admin', password: 'admin123', role: 'admin', name: 'EMZ Academy Admin', active: true },
   { 
@@ -18,16 +18,35 @@ const initialUsers = [
     attendance: { attended: 15, total: 20 },
     assignedSubjects: ['10-math', '10-phy', '10-eng'], 
     standardFee: 2500,
+    studyHours: { daily: 3.5, weekly: 21.0, monthly: 85.5 }, // Study hours tracking
     feeRecords: {
       'January 2026': { status: 'Paid', date: '2026-01-05', feeAmount: 2500 },
       'February 2026': { status: 'Paid', date: '2026-02-04', feeAmount: 2500 },
       'March 2026': { status: 'Pending', date: '-', feeAmount: 2500 }
     },
-    progress: { '10-math': 12, '10-phy': 8, '10-eng': 14 }
+    progress: { '10-math': 85, '10-phy': 60, '10-eng': 90 } // Progress percentages
+  },
+  { 
+    username: 'student11', 
+    password: 'pass123', 
+    role: 'student', 
+    grade: '11th', 
+    name: 'Bilal Ahmed', 
+    active: true,
+    attendance: { attended: 15, total: 20 },
+    assignedSubjects: ['11-acc', '11-math'], 
+    standardFee: 2500,
+    studyHours: { daily: 2.8, weekly: 16.4, monthly: 68.0 },
+    feeRecords: {
+      'January 2026': { status: 'Paid', date: '2026-01-10', feeAmount: 2500 },
+      'February 2026': { status: 'Pending', date: '-', feeAmount: 2500 },
+      'March 2026': { status: 'Pending', date: '-', feeAmount: 2500 }
+    },
+    progress: { '11-acc': 70, '11-math': 50 }
   },
 ];
 
-// Verified Curriculum Database based on uploaded image
+// Verified Curriculum Database
 const initialCourses = [
   // --- CLASS 9 ---
   { id: '9-eng', title: 'English', grade: '9th', subject: 'Languages', totalLectures: 16, totalHours: '32 Hours' },
@@ -93,7 +112,7 @@ export default function App() {
 
   const [courses] = useState(initialCourses);
   
-  // LocalStorage integration to prevent data loss on refresh
+  // LocalStorage state management
   const [usersList, setUsersList] = useState(() => {
     const savedUsers = localStorage.getItem("emzUsers");
     return savedUsers ? JSON.parse(savedUsers) : initialUsers;
@@ -141,7 +160,6 @@ export default function App() {
     setSelectedCourse(null);
   };
 
-  // Toggle Fee status for a specific student and month
   const toggleStudentMonthFee = (username, month) => {
     const currentDateStr = new Date().toISOString().split('T')[0];
     setUsersList(usersList.map(u => {
@@ -173,6 +191,7 @@ export default function App() {
       active: true,
       assignedSubjects: newSelectedSubjects,
       standardFee: 2500,
+      studyHours: { daily: 1.5, weekly: 10.0, monthly: 45.0 },
       feeRecords: {
         'January 2026': { status: 'Pending', date: '-', feeAmount: 2500 },
         'February 2026': { status: 'Pending', date: '-', feeAmount: 2500 },
@@ -394,6 +413,7 @@ export default function App() {
               {/* --- DASHBOARD --- */}
               {activeTab === 'dashboard' && (
                 <div className="space-y-6">
+                  {/* ADMIN STATS */}
                   {activeUserRecord.role === 'admin' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
@@ -418,6 +438,72 @@ export default function App() {
                     </div>
                   )}
 
+                  {/* STUDENT STUDY HOURS & PROGRESS STATS CARDS */}
+                  {activeUserRecord.role === 'student' && (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+                          <div>
+                            <p className="text-[11px] font-bold uppercase text-slate-400">Study Hours (Today)</p>
+                            <p className="text-2xl font-black text-cyan-600 mt-1">{(activeUserRecord.studyHours?.daily || 2.5)} Hours</p>
+                          </div>
+                          <div className="p-3 bg-cyan-50 text-cyan-600 rounded-xl">
+                            <Clock className="w-6 h-6" />
+                          </div>
+                        </div>
+
+                        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+                          <div>
+                            <p className="text-[11px] font-bold uppercase text-slate-400">Study Hours (This Week)</p>
+                            <p className="text-2xl font-black text-emerald-600 mt-1">{(activeUserRecord.studyHours?.weekly || 18.0)} Hours</p>
+                          </div>
+                          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                            <Calendar className="w-6 h-6" />
+                          </div>
+                        </div>
+
+                        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+                          <div>
+                            <p className="text-[11px] font-bold uppercase text-slate-400">Study Hours (This Month)</p>
+                            <p className="text-2xl font-black text-indigo-600 mt-1">{(activeUserRecord.studyHours?.monthly || 72.0)} Hours</p>
+                          </div>
+                          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                            <TrendingUp className="w-6 h-6" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Course Progress Visual Analytics Graph Section */}
+                      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                        <h3 className="text-base font-black text-slate-800 flex items-center space-x-2">
+                          <BarChart3 className="w-5 h-5 text-cyan-600" />
+                          <span>Course Progress Analytics & Visual Graph</span>
+                        </h3>
+                        <p className="text-xs text-slate-500">Subject-wise mastery level and completion progress:</p>
+
+                        <div className="space-y-4 pt-2">
+                          {displayedCourses.map(course => {
+                            const progVal = (activeUserRecord.progress || {})[course.id] || Math.floor(Math.random() * 40) + 50;
+                            return (
+                              <div key={course.id} className="space-y-1">
+                                <div className="flex justify-between text-xs font-bold text-slate-700">
+                                  <span>{course.title}</span>
+                                  <span className="text-cyan-600">{progVal}% Completed</span>
+                                </div>
+                                <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden border border-slate-200">
+                                  <div 
+                                    className="bg-gradient-to-r from-cyan-500 to-cyan-600 h-full rounded-full transition-all duration-500" 
+                                    style={{ width: `${progVal}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
                       <div>
@@ -425,7 +511,7 @@ export default function App() {
                         <p className="text-xs text-slate-500 mt-0.5">
                           {activeUserRecord.role === 'admin' 
                             ? 'Select a grade to inspect curriculum modules and subjects.' 
-                            : 'Your assigned subjects and lecture completion progress:'}
+                            : 'Your assigned subjects and course materials:'}
                         </p>
                       </div>
 
@@ -769,7 +855,7 @@ export default function App() {
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Enrolled Students & Subject Permissions</h4>
+                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Enrolled Students, Study Hours & Subject Permissions</h4>
                     
                     {studentUsers.map((stu) => {
                       const studentGradeCourses = courses.filter(c => c.grade === stu.grade);
@@ -783,7 +869,11 @@ export default function App() {
                                 <span className="text-xs text-slate-500">Grade {stu.grade}</span>
                               </div>
                             </div>
-                            <span className="text-xs font-bold text-slate-600">Standard Fee: Rs. 2,500</span>
+                            <div className="text-xs text-slate-600 font-semibold space-x-3">
+                              <span>Daily: <strong>{stu.studyHours?.daily || 2.0}h</strong></span>
+                              <span>Weekly: <strong>{stu.studyHours?.weekly || 15.0}h</strong></span>
+                              <span>Monthly: <strong>{stu.studyHours?.monthly || 60.0}h</strong></span>
+                            </div>
                           </div>
 
                           <div>
