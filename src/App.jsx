@@ -678,7 +678,7 @@ export default function App() {
                       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 className="text-base font-black text-slate-800 flex items-center space-x-2">
                           <BarChart3 className="w-5 h-5 text-cyan-600" />
-                          <span>Subject-wise Progress Breakdown (कितना पढ़ा गया है)</span>
+                          <span>Subject-wise Progress Breakdown</span>
                         </h3>
                         <p className="text-xs text-slate-500">Your individual subject completion percentages:</p>
 
