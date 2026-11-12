@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, Video, Users, LogOut, Download, 
-  LayoutDashboard, DollarSign, BarChart3, CheckSquare, FileSpreadsheet, TrendingUp, Calendar, Clock
+  LayoutDashboard, DollarSign, BarChart3, CheckSquare, 
+  FileSpreadsheet, HelpCircle, GraduationCap, Headphones, ShieldCheck
 } from 'lucide-react';
 
-// Mock Users Database with Detailed Visual Graph Data (Daily, Weekly, Monthly)
+// Mock Users Database with Detailed Visual Graph Data
 const initialUsers = [
   { username: 'admin', password: 'admin123', role: 'admin', name: 'EMZ Academy Admin', active: true },
   { 
@@ -18,7 +19,6 @@ const initialUsers = [
     assignedSubjects: ['10-math', '10-phy', '10-eng'], 
     standardFee: 2500,
     studyHours: { daily: 3.5, weekly: 21.0, monthly: 85.5 },
-    // Detailed breakdown for visual bar charts
     studyStats: {
       dailyLog: [
         { label: 'Mon', hours: 3.0 },
@@ -149,7 +149,7 @@ const initialCourses = [
 
 const monthsList = ['January 2026', 'February 2026', 'March 2026', 'April 2026', 'May 2026', 'June 2026'];
 
-// Reusable Vertical Bar Graph Component
+// Vertical Bar Graph Component
 function VerticalBarChart({ title, subtitle, data, maxVal, barColorClass, unit = 'h' }) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
@@ -163,20 +163,15 @@ function VerticalBarChart({ title, subtitle, data, maxVal, barColorClass, unit =
           const heightPercent = Math.min(100, Math.round((item.hours / maxVal) * 100));
           return (
             <div key={idx} className="flex-1 flex flex-col items-center group h-full justify-end">
-              {/* Value Label above bar */}
               <span className="text-[10px] font-bold text-slate-600 mb-1.5 group-hover:scale-110 transition-transform">
                 {item.hours}{unit}
               </span>
-              
-              {/* Vertical Bar */}
               <div className="w-full max-w-[32px] bg-slate-100 rounded-t-lg h-28 flex items-end overflow-hidden border border-slate-200/60">
                 <div 
                   className={`w-full rounded-t-lg transition-all duration-700 ${barColorClass}`}
                   style={{ height: `${heightPercent}%` }}
                 ></div>
               </div>
-              
-              {/* X-Axis Label */}
               <span className="text-[10px] font-semibold text-slate-500 mt-2">{item.label}</span>
             </div>
           );
@@ -219,6 +214,10 @@ export default function App() {
   const [newGrade, setNewGrade] = useState('9th');
   const [newSelectedSubjects, setNewSelectedSubjects] = useState([]);
   const [successMsg, setSuccessMsg] = useState('');
+
+  // Support Form State
+  const [supportMsg, setSupportMsg] = useState('');
+  const [supportSuccess, setSupportSuccess] = useState('');
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -420,7 +419,6 @@ export default function App() {
   const gradeFilteredCourses = courses.filter(c => c.grade === newGrade);
   const totalUploadedLecturesCount = courses.reduce((acc, curr) => acc + curr.totalLectures, 0);
 
-  // Default fallback stats for graphs if a student object lacks custom array
   const defaultStats = {
     dailyLog: [
       { label: 'Mon', hours: 2.5 },
@@ -475,24 +473,36 @@ export default function App() {
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
+        {/* Sidebar Navigation */}
         <aside className="w-64 bg-[#091530] text-slate-300 p-4 space-y-2 hidden md:block">
+          {/* 1. Dashboard */}
           <button 
             onClick={() => { setActiveTab('dashboard'); setSelectedCourse(null); }}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold transition-all ${activeTab === 'dashboard' && !selectedCourse ? 'bg-cyan-500 text-white shadow-md' : 'hover:bg-white/5 text-slate-300'}`}
           >
             <LayoutDashboard className="w-4 h-4" />
-            <span>Dashboard & Graphs</span>
+            <span>Dashboard</span>
           </button>
 
+          {/* 2. My Learning */}
           <button 
-            onClick={() => setActiveTab('quizzes')}
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold transition-all ${activeTab === 'quizzes' ? 'bg-cyan-500 text-white shadow-md' : 'hover:bg-white/5 text-slate-300'}`}
+            onClick={() => { setActiveTab('mylearning'); setSelectedCourse(null); }}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold transition-all ${activeTab === 'mylearning' ? 'bg-cyan-500 text-white shadow-md' : 'hover:bg-white/5 text-slate-300'}`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>My Learning</span>
+          </button>
+
+          {/* 3. Exam */}
+          <button 
+            onClick={() => setActiveTab('exam')}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold transition-all ${activeTab === 'exam' ? 'bg-cyan-500 text-white shadow-md' : 'hover:bg-white/5 text-slate-300'}`}
           >
             <CheckSquare className="w-4 h-4" />
-            <span>Quizzes</span>
+            <span>Exam & Quizzes</span>
           </button>
 
+          {/* 4. Fee Vouchers */}
           <button 
             onClick={() => setActiveTab('fees')}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold transition-all ${activeTab === 'fees' ? 'bg-cyan-500 text-white shadow-md' : 'hover:bg-white/5 text-slate-300'}`}
@@ -501,6 +511,16 @@ export default function App() {
             <span>Fee Vouchers</span>
           </button>
 
+          {/* 5. Support */}
+          <button 
+            onClick={() => setActiveTab('support')}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold transition-all ${activeTab === 'support' ? 'bg-cyan-500 text-white shadow-md' : 'hover:bg-white/5 text-slate-300'}`}
+          >
+            <Headphones className="w-4 h-4" />
+            <span>Support</span>
+          </button>
+
+          {/* 6. Student Management (Admin Only) */}
           {activeUserRecord.role === 'admin' && (
             <button 
               onClick={() => setActiveTab('admin_students')}
@@ -510,6 +530,17 @@ export default function App() {
               <span>Student Management</span>
             </button>
           )}
+
+          {/* 7. Logout */}
+          <div className="pt-4 border-t border-white/10 mt-6">
+            <button 
+              onClick={handleLogout}
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
+          </div>
         </aside>
 
         {/* Content Area */}
@@ -521,7 +552,7 @@ export default function App() {
                 onClick={() => { setSelectedCourse(null); }}
                 className="text-cyan-600 text-xs font-semibold mb-6 flex items-center space-x-1 bg-cyan-50 px-3 py-1.5 rounded-lg border border-cyan-200"
               >
-                ← Back to Dashboard
+                ← Back
               </button>
 
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
@@ -542,262 +573,177 @@ export default function App() {
             </div>
           ) : (
             <>
-              {/* --- DASHBOARD --- */}
+              {/* --- 1. DASHBOARD --- */}
               {activeTab === 'dashboard' && (
                 <div className="space-y-6">
-                  {/* ADMIN VIEW: TOP CARDS + STUDENT GRAPH SELECTOR */}
                   {activeUserRecord.role === 'admin' && (
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
-                          <div>
-                            <p className="text-xs font-bold uppercase text-slate-400">Total Enrolled Students</p>
-                            <p className="text-3xl font-black text-slate-800 mt-1">{studentUsers.length}</p>
-                          </div>
-                          <div className="p-3 bg-cyan-50 text-cyan-600 rounded-xl">
-                            <Users className="w-6 h-6" />
-                          </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-bold uppercase text-slate-400">Total Enrolled Students</p>
+                          <p className="text-3xl font-black text-slate-800 mt-1">{studentUsers.length}</p>
                         </div>
-
-                        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
-                          <div>
-                            <p className="text-xs font-bold uppercase text-slate-400">Total Lectures Available</p>
-                            <p className="text-3xl font-black text-slate-800 mt-1">{totalUploadedLecturesCount}+</p>
-                          </div>
-                          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-                            <Video className="w-6 h-6" />
-                          </div>
+                        <div className="p-3 bg-cyan-50 text-cyan-600 rounded-xl">
+                          <Users className="w-6 h-6" />
                         </div>
                       </div>
 
-                      {/* Admin Student Performance Graph Inspector */}
+                      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-bold uppercase text-slate-400">Total Lectures Available</p>
+                          <p className="text-3xl font-black text-slate-800 mt-1">{totalUploadedLecturesCount}+</p>
+                        </div>
+                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                          <Video className="w-6 h-6" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ADMIN OR STUDENT GRAPHS */}
+                  {activeUserRecord.role === 'admin' ? (
+                    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                        <div>
+                          <h2 className="text-lg font-black text-slate-800 flex items-center space-x-2">
+                            <BarChart3 className="w-5 h-5 text-cyan-600" />
+                            <span>Student Performance & Study Graphs</span>
+                          </h2>
+                          <p className="text-xs text-slate-500">Inspect daily, weekly, and monthly study hour bar graphs for any student.</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <label className="text-xs font-bold text-slate-600">Select Student:</label>
+                          <select 
+                            value={selectedAdminStudentView}
+                            onChange={(e) => setSelectedAdminStudentView(e.target.value)}
+                            className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-cyan-500"
+                          >
+                            {studentUsers.map(s => (
+                              <option key={s.username} value={s.username}>{s.name} (Grade {s.grade})</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
                       {studentUsers.length > 0 && (() => {
                         const inspectedStu = studentUsers.find(s => s.username === selectedAdminStudentView) || studentUsers[0];
                         const stuStats = inspectedStu.studyStats || defaultStats;
-                        const stuCourses = courses.filter(c => c.grade === inspectedStu.grade && (inspectedStu.assignedSubjects || []).includes(c.id));
-
                         return (
-                          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-6">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
-                              <div>
-                                <h2 className="text-lg font-black text-slate-800 flex items-center space-x-2">
-                                  <BarChart3 className="w-5 h-5 text-cyan-600" />
-                                  <span>Student Performance & Study Graphs</span>
-                                </h2>
-                                <p className="text-xs text-slate-500">Inspect daily, weekly, and monthly study hour bar graphs for any student.</p>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <label className="text-xs font-bold text-slate-600">Select Student:</label>
-                                <select 
-                                  value={inspectedStu.username}
-                                  onChange={(e) => setSelectedAdminStudentView(e.target.value)}
-                                  className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-cyan-500"
-                                >
-                                  {studentUsers.map(s => (
-                                    <option key={s.username} value={s.username}>{s.name} (Grade {s.grade})</option>
-                                  ))}
-                                </select>
-                              </div>
-                            </div>
-
-                            {/* 3 Bar Graphs Grid (Daily, Weekly, Monthly) */}
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                              <VerticalBarChart 
-                                title="Daily Study Graph (1 Day Breakdown)" 
-                                subtitle="Hours studied per day this week"
-                                data={stuStats.dailyLog} 
-                                maxVal={6} 
-                                barColorClass="bg-gradient-to-t from-cyan-600 to-cyan-400"
-                              />
-                              <VerticalBarChart 
-                                title="Weekly Study Graph (1 Week Breakdown)" 
-                                subtitle="Total study hours across 4 weeks"
-                                data={stuStats.weeklyLog} 
-                                maxVal={30} 
-                                barColorClass="bg-gradient-to-t from-emerald-600 to-emerald-400"
-                              />
-                              <VerticalBarChart 
-                                title="Monthly Study Graph (1 Month Breakdown)" 
-                                subtitle="Total study hours per month"
-                                data={stuStats.monthlyLog} 
-                                maxVal={100} 
-                                barColorClass="bg-gradient-to-t from-indigo-600 to-indigo-400"
-                              />
-                            </div>
-
-                            {/* Course Progress Graph for Inspected Student */}
-                            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
-                              <h4 className="text-sm font-black text-slate-800">Course Completion Graph ({inspectedStu.name})</h4>
-                              {stuCourses.length === 0 ? (
-                                <p className="text-xs text-slate-400">No subjects enrolled yet.</p>
-                              ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  {stuCourses.map(course => {
-                                    const progVal = (inspectedStu.progress || {})[course.id] || 65;
-                                    return (
-                                      <div key={course.id} className="space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                        <div className="flex justify-between text-xs font-bold text-slate-700">
-                                          <span>{course.title}</span>
-                                          <span className="text-cyan-600">{progVal}%</span>
-                                        </div>
-                                        <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                                          <div 
-                                            className="bg-gradient-to-r from-cyan-500 to-blue-600 h-full rounded-full transition-all duration-700" 
-                                            style={{ width: `${progVal}%` }}
-                                          ></div>
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
-                            </div>
+                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                            <VerticalBarChart title="Daily Study Graph (1 Day)" subtitle="Hours studied per day" data={stuStats.dailyLog} maxVal={6} barColorClass="bg-gradient-to-t from-cyan-600 to-cyan-400" />
+                            <VerticalBarChart title="Weekly Study Graph (1 Week)" subtitle="Study hours across 4 weeks" data={stuStats.weeklyLog} maxVal={30} barColorClass="bg-gradient-to-t from-emerald-600 to-emerald-400" />
+                            <VerticalBarChart title="Monthly Study Graph (1 Month)" subtitle="Total hours per month" data={stuStats.monthlyLog} maxVal={100} barColorClass="bg-gradient-to-t from-indigo-600 to-indigo-400" />
                           </div>
                         );
                       })()}
                     </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                        <VerticalBarChart title="Daily Study Hours (1 Day)" subtitle="Your day-by-day study log" data={(activeUserRecord.studyStats || defaultStats).dailyLog} maxVal={6} barColorClass="bg-gradient-to-t from-cyan-600 to-cyan-400" />
+                        <VerticalBarChart title="Weekly Study Hours (1 Week)" subtitle="Your week-by-week study hours" data={(activeUserRecord.studyStats || defaultStats).weeklyLog} maxVal={30} barColorClass="bg-gradient-to-t from-emerald-600 to-emerald-400" />
+                        <VerticalBarChart title="Monthly Study Hours (1 Month)" subtitle="Your monthly total hours" data={(activeUserRecord.studyStats || defaultStats).monthlyLog} maxVal={100} barColorClass="bg-gradient-to-t from-indigo-600 to-indigo-400" />
+                      </div>
+                    </div>
                   )}
+                </div>
+              )}
 
-                  {/* STUDENT VIEW: VISUAL BAR GRAPHS & COURSE PROGRESS */}
-                  {activeUserRecord.role === 'student' && (() => {
-                    const userStats = activeUserRecord.studyStats || defaultStats;
+              {/* --- 2. MY LEARNING --- */}
+              {activeTab === 'mylearning' && (
+                <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+                    <div>
+                      <h1 className="text-xl font-black text-slate-800">My Learning & Enrolled Courses</h1>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {activeUserRecord.role === 'admin' 
+                          ? 'Complete curriculum inspection module across grades:' 
+                          : 'Your assigned subjects, lecture videos, and progress:'}
+                      </p>
+                    </div>
 
-                    return (
-                      <div className="space-y-6">
-                        {/* 3 Bar Graphs (1 Day, 1 Week, 1 Month) */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                          <VerticalBarChart 
-                            title="Daily Study Hours (1 Day)" 
-                            subtitle="Your day-by-day study time log"
-                            data={userStats.dailyLog} 
-                            maxVal={6} 
-                            barColorClass="bg-gradient-to-t from-cyan-600 to-cyan-400"
-                          />
-                          <VerticalBarChart 
-                            title="Weekly Study Hours (1 Week)" 
-                            subtitle="Your week-by-week study hours"
-                            data={userStats.weeklyLog} 
-                            maxVal={30} 
-                            barColorClass="bg-gradient-to-t from-emerald-600 to-emerald-400"
-                          />
-                          <VerticalBarChart 
-                            title="Monthly Study Hours (1 Month)" 
-                            subtitle="Your month-by-month total hours"
-                            data={userStats.monthlyLog} 
-                            maxVal={100} 
-                            barColorClass="bg-gradient-to-t from-indigo-600 to-indigo-400"
-                          />
-                        </div>
+                    {activeUserRecord.role === 'admin' && (
+                      <div className="flex items-center space-x-2">
+                        <label className="text-xs font-bold text-slate-600">Select Grade:</label>
+                        <select 
+                          value={selectedGradeFilter}
+                          onChange={(e) => setSelectedGradeFilter(e.target.value)}
+                          className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-cyan-500"
+                        >
+                          <option value="9th">Grade 9th</option>
+                          <option value="10th">Grade 10th</option>
+                          <option value="11th">Grade 11th</option>
+                          <option value="12th">Grade 12th</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
 
-                        {/* Course Progress Graph Section */}
-                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
-                          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                            <div>
-                              <h3 className="text-base font-black text-slate-800 flex items-center space-x-2">
-                                <BarChart3 className="w-5 h-5 text-cyan-600" />
-                                <span>Course Progress Bar Graph</span>
-                              </h3>
-                              <p className="text-xs text-slate-500 mt-0.5">Visual completion status of your enrolled subjects:</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {displayedCourses.map((course) => {
+                      const progVal = (activeUserRecord.progress || {})[course.id] || 75;
+                      return (
+                        <div 
+                          key={course.id}
+                          onClick={() => { setSelectedCourse(course); }}
+                          className="bg-slate-50 border border-slate-200 hover:border-cyan-400 rounded-2xl p-5 cursor-pointer transition-all shadow-sm hover:shadow-md flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-[10px] font-bold uppercase tracking-wider bg-cyan-100 text-cyan-700 px-2.5 py-0.5 rounded-full">
+                                Grade {course.grade}
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-semibold">{course.subject}</span>
                             </div>
-                          </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {displayedCourses.map(course => {
-                              const progVal = (activeUserRecord.progress || {})[course.id] || 65;
-                              return (
-                                <div key={course.id} className="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200/70">
-                                  <div className="flex justify-between items-center text-xs font-bold text-slate-700">
-                                    <span>{course.title}</span>
-                                    <span className="bg-cyan-100 text-cyan-700 px-2 py-0.5 rounded-full text-[11px]">{progVal}% Completed</span>
-                                  </div>
-                                  <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
-                                    <div 
-                                      className="bg-gradient-to-r from-cyan-500 to-indigo-600 h-full rounded-full transition-all duration-700" 
-                                      style={{ width: `${progVal}%` }}
-                                    ></div>
-                                  </div>
+                            <h3 className="text-base font-bold text-slate-800 mb-3">{course.title}</h3>
+
+                            <div className="space-y-1.5 text-xs text-slate-600 mb-4 bg-white p-3 rounded-xl border border-slate-100">
+                              <div className="flex justify-between"><span>Total Lectures:</span> <strong className="text-slate-800">{course.totalLectures} Lectures</strong></div>
+                              <div className="flex justify-between"><span>Duration:</span> <strong className="text-slate-800">{course.totalHours}</strong></div>
+                            </div>
+
+                            {activeUserRecord.role === 'student' && (
+                              <div className="space-y-1 mb-4">
+                                <div className="flex justify-between text-[11px] font-bold text-slate-600">
+                                  <span>Progress</span>
+                                  <span className="text-cyan-600">{progVal}%</span>
                                 </div>
-                              );
-                            })}
+                                <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                  <div className="bg-cyan-500 h-full rounded-full" style={{ width: `${progVal}%` }}></div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider flex items-center space-x-1">
+                            <span>Open Learning Hub →</span>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })()}
-
-                  {/* SUBJECTS LIST SECTION */}
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
-                      <div>
-                        <h1 className="text-xl font-black text-slate-800">Subjects & Lecture Modules</h1>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          {activeUserRecord.role === 'admin' 
-                            ? 'Select a grade to inspect curriculum modules and subjects.' 
-                            : 'Click any subject to open video lectures and notes:'}
-                        </p>
-                      </div>
-
-                      {activeUserRecord.role === 'admin' && (
-                        <div className="flex items-center space-x-2">
-                          <label className="text-xs font-bold text-slate-600">Select Grade:</label>
-                          <select 
-                            value={selectedGradeFilter}
-                            onChange={(e) => setSelectedGradeFilter(e.target.value)}
-                            className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-cyan-500"
-                          >
-                            <option value="9th">Grade 9th</option>
-                            <option value="10th">Grade 10th</option>
-                            <option value="11th">Grade 11th</option>
-                            <option value="12th">Grade 12th</option>
-                          </select>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                      {displayedCourses.map((course) => {
-                        return (
-                          <div 
-                            key={course.id}
-                            onClick={() => { setSelectedCourse(course); }}
-                            className="bg-slate-50 border border-slate-200 hover:border-cyan-400 rounded-2xl p-5 cursor-pointer transition-all shadow-sm hover:shadow-md flex flex-col justify-between"
-                          >
-                            <div>
-                              <div className="flex items-center justify-between mb-3">
-                                <span className="text-[10px] font-bold uppercase tracking-wider bg-cyan-100 text-cyan-700 px-2.5 py-0.5 rounded-full">
-                                  Grade {course.grade}
-                                </span>
-                                <span className="text-[10px] text-slate-400 font-semibold">{course.subject}</span>
-                              </div>
-
-                              <h3 className="text-base font-bold text-slate-800 mb-3">{course.title}</h3>
-
-                              <div className="space-y-1 text-xs text-slate-600 mb-4 bg-white p-3 rounded-xl border border-slate-100">
-                                <div className="flex justify-between"><span>Total Lectures:</span> <strong className="text-slate-800">{course.totalLectures} Lectures</strong></div>
-                                <div className="flex justify-between"><span>Course Duration:</span> <strong className="text-slate-800">{course.totalHours}</strong></div>
-                              </div>
-                            </div>
-
-                            <div className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider flex items-center space-x-1">
-                              <span>View Content & Materials →</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
-              {/* --- QUIZZES --- */}
-              {activeTab === 'quizzes' && (
+              {/* --- 3. EXAM & QUIZZES --- */}
+              {activeTab === 'exam' && (
                 <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
-                  <h3 className="text-xl font-bold text-slate-800">Quizzes & Assessment Center</h3>
-                  <p className="text-xs text-slate-600">Attempt weekly tests and evaluate your conceptual learning.</p>
+                  <h3 className="text-xl font-bold text-slate-800">Exam & Quizzes Center</h3>
+                  <p className="text-xs text-slate-600">Attempt weekly tests, mid-term examinations, and evaluate your conceptual learning.</p>
+                  
+                  <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl mt-4 space-y-3">
+                    <span className="text-[10px] uppercase font-bold bg-cyan-100 text-cyan-700 px-2.5 py-1 rounded-full">Active Assessment</span>
+                    <h4 className="text-base font-bold text-slate-800">Weekly Concept Quiz #4</h4>
+                    <p className="text-xs text-slate-500">Includes multiple choice and structured numerical problems.</p>
+                    <button onClick={() => alert('Starting examination module...')} className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm">
+                      Start Quiz Now
+                    </button>
+                  </div>
                 </div>
               )}
 
-              {/* --- FEE VOUCHERS --- */}
+              {/* --- 4. FEE VOUCHERS --- */}
               {activeTab === 'fees' && (
                 <div className="space-y-6">
                   <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
@@ -975,7 +921,46 @@ export default function App() {
                 </div>
               )}
 
-              {/* --- ADMIN STUDENT MANAGEMENT & ACCESS CONTROL --- */}
+              {/* --- 5. SUPPORT --- */}
+              {activeTab === 'support' && (
+                <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-800">EMZ Academy Support Desk</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Need technical help or academic guidance? Submit your query below.</p>
+                  </div>
+
+                  {supportSuccess && (
+                    <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs p-3 rounded-xl">
+                      {supportSuccess}
+                    </div>
+                  )}
+
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!supportMsg.trim()) return;
+                    setSupportSuccess('آپ کا پیغام کامیابی سے سپورٹ ٹیم کو بھیج دیا گیا ہے۔ جلد رابطہ کیا جائے گا۔');
+                    setSupportMsg('');
+                    setTimeout(() => setSupportSuccess(''), 5000);
+                  }} className="space-y-4 max-w-xl">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Your Message / Issue:</label>
+                      <textarea 
+                        rows="4" 
+                        value={supportMsg} 
+                        onChange={(e) => setSupportMsg(e.target.value)} 
+                        placeholder="Write your query here..." 
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:border-cyan-500" 
+                        required 
+                      />
+                    </div>
+                    <button type="submit" className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-sm">
+                      Submit Support Ticket
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* --- 6. STUDENT MANAGEMENT (ADMIN ONLY) --- */}
               {activeTab === 'admin_students' && activeUserRecord.role === 'admin' && (
                 <div className="space-y-6">
                   <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
@@ -992,47 +977,19 @@ export default function App() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div>
                           <label className="block text-[11px] font-bold text-slate-600 mb-1">Student Full Name</label>
-                          <input 
-                            type="text" 
-                            value={newName} 
-                            onChange={(e) => setNewName(e.target.value)} 
-                            placeholder="e.g. Sara Khan" 
-                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500" 
-                            required 
-                          />
+                          <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Sara Khan" className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500" required />
                         </div>
                         <div>
                           <label className="block text-[11px] font-bold text-slate-600 mb-1">Username ID</label>
-                          <input 
-                            type="text" 
-                            value={newUsername} 
-                            onChange={(e) => setNewUsername(e.target.value)} 
-                            placeholder="e.g. student9_sara" 
-                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500" 
-                            required 
-                          />
+                          <input type="text" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} placeholder="e.g. student9_sara" className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500" required />
                         </div>
                         <div>
                           <label className="block text-[11px] font-bold text-slate-600 mb-1">Password</label>
-                          <input 
-                            type="text" 
-                            value={newPassword} 
-                            onChange={(e) => setNewPassword(e.target.value)} 
-                            placeholder="Initial password" 
-                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500" 
-                            required 
-                          />
+                          <input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Initial password" className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500" required />
                         </div>
                         <div>
                           <label className="block text-[11px] font-bold text-slate-600 mb-1">Grade Level</label>
-                          <select 
-                            value={newGrade} 
-                            onChange={(e) => {
-                              setNewGrade(e.target.value);
-                              setNewSelectedSubjects([]);
-                            }} 
-                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500"
-                          >
+                          <select value={newGrade} onChange={(e) => { setNewGrade(e.target.value); setNewSelectedSubjects([]); }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500">
                             <option value="9th">Grade 9th</option>
                             <option value="10th">Grade 10th</option>
                             <option value="11th">Grade 11th</option>
@@ -1048,18 +1005,13 @@ export default function App() {
                             const isChecked = newSelectedSubjects.includes(c.id);
                             return (
                               <label key={c.id} className="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer p-1.5 hover:bg-slate-50 rounded">
-                                <input 
-                                  type="checkbox"
-                                  checked={isChecked}
-                                  onChange={() => {
-                                    if (isChecked) {
-                                      setNewSelectedSubjects(newSelectedSubjects.filter(id => id !== c.id));
-                                    } else {
-                                      setNewSelectedSubjects([...newSelectedSubjects, c.id]);
-                                    }
-                                  }}
-                                  className="rounded border-slate-300 text-cyan-500 focus:ring-0"
-                                />
+                                <input type="checkbox" checked={isChecked} onChange={() => {
+                                  if (isChecked) {
+                                    setNewSelectedSubjects(newSelectedSubjects.filter(id => id !== c.id));
+                                  } else {
+                                    setNewSelectedSubjects([...newSelectedSubjects, c.id]);
+                                  }
+                                }} className="rounded border-slate-300 text-cyan-500 focus:ring-0" />
                                 <span className="truncate">{c.title}</span>
                               </label>
                             );
@@ -1067,10 +1019,7 @@ export default function App() {
                         </div>
                       </div>
 
-                      <button 
-                        type="submit" 
-                        className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-sm transition-all"
-                      >
+                      <button type="submit" className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-sm transition-all">
                         Generate Credentials & Grant Access
                       </button>
                     </form>
@@ -1091,31 +1040,20 @@ export default function App() {
                                 <span className="text-xs text-slate-500">Grade {stu.grade}</span>
                               </div>
                             </div>
-                            <button 
-                              onClick={() => {
-                                setSelectedAdminStudentView(stu.username);
-                                setActiveTab('dashboard');
-                              }}
-                              className="text-xs font-bold text-cyan-600 bg-cyan-50 hover:bg-cyan-100 px-3 py-1.5 rounded-lg border border-cyan-200 flex items-center space-x-1"
-                            >
+                            <button onClick={() => { setSelectedAdminStudentView(stu.username); setActiveTab('dashboard'); }} className="text-xs font-bold text-cyan-600 bg-cyan-50 hover:bg-cyan-100 px-3 py-1.5 rounded-lg border border-cyan-200 flex items-center space-x-1">
                               <BarChart3 className="w-3.5 h-3.5" />
-                              <span>View Performance Graphs</span>
+                              <span>View Graphs</span>
                             </button>
                           </div>
 
                           <div>
-                            <p className="text-xs font-semibold text-slate-600 mb-2">Modify Subject Access (Check to Grant, Uncheck to Revoke):</p>
+                            <p className="text-xs font-semibold text-slate-600 mb-2">Modify Subject Access:</p>
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 max-h-48 overflow-y-auto">
                               {studentGradeCourses.map(course => {
                                 const hasAccess = (stu.assignedSubjects || []).includes(course.id);
                                 return (
                                   <label key={course.id} className="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer p-1.5 hover:bg-white rounded transition-colors">
-                                    <input 
-                                      type="checkbox"
-                                      checked={hasAccess}
-                                      onChange={() => toggleStudentSubject(stu.username, course.id)}
-                                      className="rounded border-slate-300 text-cyan-500 focus:ring-0"
-                                    />
+                                    <input type="checkbox" checked={hasAccess} onChange={() => toggleStudentSubject(stu.username, course.id)} className="rounded border-slate-300 text-cyan-500 focus:ring-0" />
                                     <span className="truncate font-medium">{course.title}</span>
                                   </label>
                                 );
